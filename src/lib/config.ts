@@ -2,7 +2,7 @@ import Constants from "expo-constants";
 
 type Extra = {
   supabaseUrl?: string;
-  supabaseAnonKey?: string;
+  supabaseKey?: string;
 };
 
 const extra = (Constants.expoConfig?.extra ?? {}) as Extra;
@@ -20,5 +20,5 @@ function required(value: string | undefined, name: string): string {
 
 export const config = {
   supabaseUrl: required(extra.supabaseUrl, "EXPO_PUBLIC_SUPABASE_URL"),
-  supabaseAnonKey: required(extra.supabaseAnonKey, "EXPO_PUBLIC_SUPABASE_ANON_KEY"),
+  supabaseKey: required(extra.supabaseKey, "EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY"),
 } as const;

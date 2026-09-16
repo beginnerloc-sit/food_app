@@ -72,7 +72,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
-    supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+    // New Supabase key system: publishable key (sb_publishable_...).
+    // Falls back to the legacy anon key if that's what you have.
+    supabaseKey:
+      process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+      process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
     eas: {
       projectId: process.env.EAS_PROJECT_ID,
     },

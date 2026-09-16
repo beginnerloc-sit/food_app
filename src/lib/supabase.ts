@@ -8,7 +8,7 @@ import { config } from "./config";
 // generated Database type can be dropped in later via `supabase gen types`.
 export const supabase = createClient(
   config.supabaseUrl,
-  config.supabaseAnonKey,
+  config.supabaseKey,
   {
     auth: {
       storage: AsyncStorage,

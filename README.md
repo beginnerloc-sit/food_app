@@ -44,11 +44,13 @@ cp .env.example .env      # then fill in the values (see below)
    *Already have an older database?* Run
    [`supabase/migrations/20260916120000_ai_persona.sql`](supabase/migrations/20260916120000_ai_persona.sql)
    instead to add the AI-persona columns without a reset (it's idempotent).
-3. Copy **Project URL** and **anon key** (Project Settings → API) into `.env`:
+3. Copy **Project URL** and the **publishable key** (`sb_publishable_...`, from
+   Project Settings → API Keys) into `.env`:
    ```
    EXPO_PUBLIC_SUPABASE_URL=...
-   EXPO_PUBLIC_SUPABASE_ANON_KEY=...
+   EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
    ```
+   *(On an older project you can use the legacy anon key in the same slot.)*
 
 ### 3. Edge functions (OpenAI + push)
 
@@ -59,12 +61,14 @@ supabase link --project-ref YOUR_REF
 
 # secrets (never shipped to the app)
 supabase secrets set OPENAI_API_KEY=sk-...
-supabase secrets set SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+# secret key (sb_secret_...) from Project Settings → API Keys — bypasses RLS
+# so send-notification can read any user's push token. (Legacy: service_role key.)
+supabase secrets set SERVICE_ROLE_KEY=sb_secret_...
 
 supabase functions deploy analyze-meal      # meal photo → nutrition
 supabase functions deploy coach-chat        # the "Chef" AI buddy
 supabase functions deploy ai-persona        # the user's custom AI persona
-supabase functions deploy send-notification # Expo push delivery
+supabase functions deploy send-notification --no-verify-jwt  # Expo push (called by DB webhook)
 ```
 
 Then wire push delivery: **Dashboard → Database → Webhooks → Create**

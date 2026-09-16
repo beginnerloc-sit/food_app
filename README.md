@@ -1,0 +1,134 @@
+# 🍽️ PlatePal
+
+A social calorie tracker. **Snap a meal → AI predicts the name, serving size &
+calories → it's logged and shared to the friends in your tracker circle, who get
+a push notification.** The feed mixes your friends' meals with dietary meal-prep
+articles, and **Chef**, a witty AI food buddy, roasts your day and gives tips.
+
+Built with **Expo (React Native) · Supabase · OpenAI (gpt-4o-mini) · Google Drive**.
+
+---
+
+## ✨ Features
+
+| Area | What it does |
+|------|--------------|
+| 📸 **Snap & log** | Camera → OpenAI vision estimates meal name, serving, calories + macros. Everything stays editable before you save. |
+| 📊 **Tracker** | Animated calorie ring, macro bars, 7-day chart, per-day meal list, streaks. |
+| 🎯 **Set goal** | BMR/TDEE calculator (lose / maintain / gain) computes calorie + macro targets. |
+| 🧑‍🍳 **Talk to Chef** | AI chat buddy that jokes about your meals & plan while sneaking in real advice. |
+| 👥 **Social** | Add friends, like & comment, real-time feed. |
+| 🔔 **Tracker circle** | Add friends to your circle — they get a push every time you log a meal. |
+| 📰 **Discover** | Meal-prep articles from Spoonacular, filterable by diet. |
+| ☁️ **Google Drive** | Meal photos back up to the user's Drive (falls back to Supabase Storage). |
+
+Design uses the brand palette: coral `#FF7F50` · yellow `#FFD166` · green `#06D6A0` · blue `#118AB2`.
+
+---
+
+## 🚀 Setup
+
+### 1. Install
+
+```bash
+npm install
+cp .env.example .env      # then fill in the values (see below)
+```
+
+### 2. Supabase
+
+1. Create a project at [supabase.com](https://supabase.com).
+2. Open the **SQL Editor** and run [`supabase/schema.sql`](supabase/schema.sql).
+   It creates all tables, RLS policies, triggers, the `meal-photos` storage
+   bucket, and helper functions.
+3. Copy **Project URL** and **anon key** (Project Settings → API) into `.env`:
+   ```
+   EXPO_PUBLIC_SUPABASE_URL=...
+   EXPO_PUBLIC_SUPABASE_ANON_KEY=...
+   ```
+
+### 3. Edge functions (OpenAI + push)
+
+```bash
+npm i -g supabase                 # if you don't have the CLI
+supabase login
+supabase link --project-ref YOUR_REF
+
+# secrets (never shipped to the app)
+supabase secrets set OPENAI_API_KEY=sk-...
+supabase secrets set SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
+
+supabase functions deploy analyze-meal      # meal photo → nutrition
+supabase functions deploy coach-chat        # the "Chef" AI buddy
+supabase functions deploy send-notification # Expo push delivery
+```
+
+Then wire push delivery: **Dashboard → Database → Webhooks → Create**
+- Table `notifications`, event **INSERT**
+- Type **Supabase Edge Function → `send-notification`**
+
+Now every row a trigger inserts into `notifications` (new meal, like, comment,
+added-to-circle) fans out as a real push to the recipient's device.
+
+### 4. Google OAuth (Drive upload)
+
+1. [Google Cloud Console](https://console.cloud.google.com) → enable the
+   **Google Drive API**.
+2. Create OAuth client IDs (Web, iOS, Android) and add them to `.env`
+   (`EXPO_PUBLIC_GOOGLE_*_CLIENT_ID`). The scope used is `drive.file`.
+3. In the app: **Profile → Google Drive** toggle to connect.
+
+### 5. Spoonacular (Discover feed)
+
+Get a free key at [spoonacular.com/food-api](https://spoonacular.com/food-api)
+and set `EXPO_PUBLIC_MEALPREP_API_KEY`. *(Without it the Discover tab shows a
+small curated fallback list.)*
+
+### 6. Run
+
+```bash
+npx expo start
+```
+
+Open in **Expo Go** or a dev build. **Push notifications require a physical
+device** (and, for a standalone build, an EAS `projectId`).
+
+---
+
+## 🏗️ Architecture
+
+```
+app/                       # expo-router screens (file-based routing)
+  (auth)/                  # sign-in, onboarding
+  (tabs)/                  # feed, track, capture, friends, profile, notifications
+  log/[id].tsx             # meal detail + comments
+  coach.tsx                # AI Chef chat (modal)
+  goals.tsx                # goal calculator (modal)
+src/
+  components/              # Avatar, CalorieRing, LogCard, TabBar, ... (all animated)
+  context/AuthContext.tsx  # session + profile + push registration
+  lib/                     # supabase, api, mealAnalysis, googleDrive, coach, goals, notifications
+  theme/                   # palette + spacing/radius/typography tokens
+supabase/
+  schema.sql               # tables, RLS, triggers, storage
+  functions/               # analyze-meal, coach-chat, send-notification (Deno)
+```
+
+**Why edge functions?** The OpenAI key never touches the client — the app sends
+the photo (or chat) to a Supabase function that calls OpenAI server-side.
+
+**Animations** use `react-native-reanimated`: spring press feedback, staggered
+list entrances, the animated calorie ring & weekly bars, the like-heart pop, the
+typing indicator, the scanning pulse during analysis, and a rotating capture FAB.
+
+---
+
+## 📝 Notes & next steps
+
+- `daily_totals` / `feed_logs` are SQL helpers; the feed relies on RLS so a user
+  only ever sees their own + accepted friends' logs.
+- Streaks: the `streak_count` column is ready; add a scheduled function (or
+  update on log insert) to increment it — left as a follow-up.
+- Type safety: the Supabase client is untyped for brevity; run
+  `supabase gen types typescript` and drop the result into `src/types` to make
+  every query fully typed.

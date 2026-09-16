@@ -1,0 +1,19 @@
+node_modules/
+.expo/
+dist/
+web-build/
+*.log
+.DS_Store
+
+# env
+.env
+.env.local
+.env*.local
+
+# native
+ios/
+android/
+*.orig.*
+
+# secrets
+supabase/.temp/

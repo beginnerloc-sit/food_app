@@ -26,6 +26,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundleIdentifier: "com.beginnerloc.platepal",
     buildNumber: "1",
     infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
       NSCameraUsageDescription:
         "PlatePal uses your camera to snap photos of meals for calorie estimation.",
       NSPhotoLibraryUsageDescription:
@@ -81,7 +82,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
       process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
     eas: {
-      projectId: process.env.EAS_PROJECT_ID,
+      projectId: "a081b1d0-c793-4a0e-818c-c86b7a49abbf",
     },
   },
 });

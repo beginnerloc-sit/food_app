@@ -23,9 +23,7 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "loctientran235@gmail.com",
-        "ascAppId": "REPLACE_WITH_APP_STORE_CONNECT_APP_ID",
-        "appleTeamId": "REPLACE_WITH_APPLE_TEAM_ID"
+        "appleId": "loctientran235@gmail.com"
       }
     }
   }

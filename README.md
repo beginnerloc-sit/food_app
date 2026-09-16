@@ -41,6 +41,9 @@ cp .env.example .env      # then fill in the values (see below)
 2. Open the **SQL Editor** and run [`supabase/schema.sql`](supabase/schema.sql).
    It creates all tables, RLS policies, triggers, the `meal-photos` storage
    bucket, and helper functions.
+   *Already have an older database?* Run
+   [`supabase/migrations/20260916120000_ai_persona.sql`](supabase/migrations/20260916120000_ai_persona.sql)
+   instead to add the AI-persona columns without a reset (it's idempotent).
 3. Copy **Project URL** and **anon key** (Project Settings → API) into `.env`:
    ```
    EXPO_PUBLIC_SUPABASE_URL=...

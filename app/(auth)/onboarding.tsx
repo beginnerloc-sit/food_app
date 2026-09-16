@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
+} from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -49,53 +58,57 @@ export default function Onboarding() {
   };
 
   return (
-    <View
-      style={[
-        styles.wrap,
-        { backgroundColor: colors.background, paddingTop: insets.top + 40 },
-      ]}
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: colors.background }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <Animated.View entering={FadeInDown}>
-        <View style={[styles.iconBadge, { backgroundColor: brand.green + "22" }]}>
-          <Ionicons name="person-add" size={30} color={brand.green} />
-        </View>
-        <Text style={[styles.title, { color: colors.text }]}>
-          Set up your profile
-        </Text>
-        <Text style={[styles.sub, { color: colors.textMuted }]}>
-          This is how friends will find you.
-        </Text>
-      </Animated.View>
+      <ScrollView
+        contentContainerStyle={[styles.wrap, { paddingTop: insets.top + 40 }]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Animated.View entering={FadeInDown}>
+          <View style={[styles.iconBadge, { backgroundColor: brand.green + "22" }]}>
+            <Ionicons name="person-add" size={30} color={brand.green} />
+          </View>
+          <Text style={[styles.title, { color: colors.text }]}>
+            Set up your profile
+          </Text>
+          <Text style={[styles.sub, { color: colors.textMuted }]}>
+            This is how friends will find you.
+          </Text>
+        </Animated.View>
 
-      <Animated.View entering={FadeInDown.delay(150)} style={{ marginTop: spacing.xxl }}>
-        <Label text="Username" />
-        <Input
-          value={username}
-          onChangeText={setUsername}
-          placeholder="e.g. hungry_hannah"
-          autoCapitalize="none"
-        />
-        <Label text="Display name" />
-        <Input
-          value={displayName}
-          onChangeText={setDisplayName}
-          placeholder="Hannah R."
-        />
-        <Label text="Daily calorie goal" />
-        <Input
-          value={goal}
-          onChangeText={setGoal}
-          placeholder="2000"
-          keyboardType="number-pad"
-        />
-        <Button
-          label="Start tracking"
-          onPress={finish}
-          loading={loading}
-          style={{ marginTop: spacing.lg }}
-        />
-      </Animated.View>
-    </View>
+        <Animated.View entering={FadeInDown.delay(150)} style={{ marginTop: spacing.xxl }}>
+          <Label text="Username" />
+          <Input
+            value={username}
+            onChangeText={setUsername}
+            placeholder="e.g. hungry_hannah"
+            autoCapitalize="none"
+          />
+          <Label text="Display name" />
+          <Input
+            value={displayName}
+            onChangeText={setDisplayName}
+            placeholder="Hannah R."
+          />
+          <Label text="Daily calorie goal" />
+          <Input
+            value={goal}
+            onChangeText={setGoal}
+            placeholder="2000"
+            keyboardType="number-pad"
+          />
+          <Button
+            label="Start tracking"
+            onPress={finish}
+            loading={loading}
+            style={{ marginTop: spacing.lg }}
+          />
+        </Animated.View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -123,7 +136,7 @@ function Input(props: React.ComponentProps<typeof TextInput>) {
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1, paddingHorizontal: spacing.xl },
+  wrap: { flexGrow: 1, paddingHorizontal: spacing.xl, paddingBottom: spacing.xxl },
   iconBadge: {
     width: 60,
     height: 60,

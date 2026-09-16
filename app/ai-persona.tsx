@@ -207,7 +207,7 @@ export default function AiPersona() {
         <TextInput
           value={prompt}
           onChangeText={setPrompt}
-          placeholder="Describe how your AI talks and behaves… e.g. 'A dramatic French chef who is obsessed with butter and roasts my bland meals.'"
+          placeholder="How should your AI talk? e.g. a dramatic French chef obsessed with butter."
           placeholderTextColor={colors.textFaint}
           multiline
           style={[

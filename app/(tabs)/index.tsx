@@ -131,8 +131,8 @@ export default function Feed() {
           !loading ? (
             <EmptyState
               icon="camera-outline"
-              title="Your feed is empty"
-              subtitle="Snap your first meal with the camera button, or add friends to see their meals here."
+              title="Nothing here yet"
+              subtitle="Snap a meal or add friends to fill your feed."
             />
           ) : null
         }

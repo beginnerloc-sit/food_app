@@ -112,7 +112,7 @@ export default function Friends() {
           <TextInput
             value={query}
             onChangeText={runSearch}
-            placeholder="Find people by username…"
+            placeholder="Search by username"
             placeholderTextColor={colors.textFaint}
             autoCapitalize="none"
             style={[styles.searchInput, { color: colors.text }]}
@@ -177,11 +177,11 @@ export default function Friends() {
           <View style={[styles.hint, { backgroundColor: brand.blue + "14" }]}>
             <Ionicons name="notifications" size={16} color={brand.blue} />
             <Text style={[styles.hintText, { color: colors.textMuted }]}>
-              Tap the bell to add friends to your{" "}
+              Tap the bell to add someone to your{" "}
               <Text style={{ fontWeight: "700", color: colors.text }}>
-                tracker circle
-              </Text>{" "}
-              — they get a push whenever you log a meal.
+                circle
+              </Text>
+              . They get a ping when you log a meal.
             </Text>
           </View>
 
@@ -189,7 +189,7 @@ export default function Friends() {
             <EmptyState
               icon="people-outline"
               title="No friends yet"
-              subtitle="Search for people above to start sharing your food journey."
+              subtitle="Search above to add friends."
             />
           ) : (
             accepted.map((edge) => (

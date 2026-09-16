@@ -38,7 +38,7 @@ export default function Coach() {
     {
       role: "assistant",
       content:
-        "Hey, I'm Chef 👨‍🍳 your (slightly cheeky) food buddy. Ask me anything, or tap a prompt below to get roasted.",
+        "Hi, I'm Chef. Ask me anything about your food, or tap a prompt below.",
     },
   ]);
   const [input, setInput] = useState("");

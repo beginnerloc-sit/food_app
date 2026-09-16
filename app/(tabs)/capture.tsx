@@ -210,7 +210,7 @@ export default function Capture() {
           Camera access
         </Text>
         <Text style={[styles.permSub, { color: colors.textMuted }]}>
-          PlatePal needs your camera to snap meals and estimate calories.
+          Snap meals to log them.
         </Text>
         <Button label="Grant access" onPress={requestPermission} fullWidth={false} />
         <Pressable onPress={pickPhoto} style={{ marginTop: 16 }}>
@@ -252,7 +252,7 @@ export default function Capture() {
 
           <Animated.View entering={SlideInDown.springify().damping(18)} style={styles.reviewBody}>
             <Text style={[styles.reviewHeading, { color: colors.text }]}>
-              {prediction?.confidence ? "Here's what I found 🍽️" : "Log your meal"}
+              {prediction?.confidence ? "Nutrition estimate" : "Log meal"}
             </Text>
             {prediction?.items?.length ? (
               <Text style={[styles.items, { color: colors.textMuted }]}>
@@ -371,7 +371,7 @@ export default function Capture() {
           ]}
         >
           <Button
-            label="Save & share to circle"
+            label="Save meal"
             onPress={save}
             loading={saving}
             icon={<Ionicons name="checkmark-circle" size={20} color="#fff" />}
@@ -390,8 +390,8 @@ export default function Capture() {
         )}
         <View style={styles.analyzeOverlay} />
         <ScannerPulse />
-        <Text style={styles.analyzeText}>Analyzing your meal…</Text>
-        <Text style={styles.analyzeSub}>Estimating calories & macros with AI</Text>
+        <Text style={styles.analyzeText}>Analyzing</Text>
+        <Text style={styles.analyzeSub}>Estimating calories and macros</Text>
       </View>
     );
   }
@@ -401,7 +401,7 @@ export default function Capture() {
     <View style={{ flex: 1, backgroundColor: "#000" }}>
       <CameraView ref={cameraRef} style={{ flex: 1 }} facing="back">
         <View style={[styles.camTop, { paddingTop: insets.top + 8 }]}>
-          <Text style={styles.camHint}>Point at your meal and snap</Text>
+          <Text style={styles.camHint}>Point at your meal</Text>
         </View>
         {/* framing guide */}
         <View style={styles.frame} pointerEvents="none">

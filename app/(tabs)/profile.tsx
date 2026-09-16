@@ -153,7 +153,7 @@ export default function ProfileScreen() {
                 icon="options-outline"
                 color={brand.coral}
                 title="Set your goal"
-                subtitle="Calorie & macro targets"
+                subtitle="Calorie and macro targets"
                 onPress={() => router.push("/goals")}
               />
               <View style={{ height: 1, backgroundColor: colors.border, marginLeft: 64 }} />
@@ -161,7 +161,7 @@ export default function ProfileScreen() {
                 icon="chatbubbles-outline"
                 color={brand.green}
                 title="Talk to Chef"
-                subtitle="Your witty AI food buddy"
+                subtitle="Your AI food coach"
                 onPress={() => router.push("/coach")}
               />
               <View style={{ height: 1, backgroundColor: colors.border, marginLeft: 64 }} />
@@ -172,7 +172,7 @@ export default function ProfileScreen() {
                 subtitle={
                   profile?.ai_enabled
                     ? `${profile.ai_emoji} ${profile.ai_name} is active`
-                    : "Design an AI that posts & comments"
+                    : "An AI that comments on your meals"
                 }
                 onPress={() => router.push("/ai-persona")}
               />
@@ -191,7 +191,7 @@ export default function ProfileScreen() {
                     Cloud storage
                   </Text>
                   <Text style={[styles.intSub, { color: colors.textMuted }]}>
-                    Meal photos are backed up to Supabase Storage
+                    Meal photos backed up to the cloud
                   </Text>
                 </View>
                 <Ionicons name="checkmark-circle" size={22} color={brand.green} />

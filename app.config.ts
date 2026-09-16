@@ -15,9 +15,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   scheme: "platepal",
   userInterfaceStyle: "automatic",
   splash: {
-    image: "./assets/splash.png",
+    image: "./assets/splash-icon.png",
     resizeMode: "contain",
-    backgroundColor: "#118AB2",
+    backgroundColor: "#FF7F50",
   },
   assetBundlePatterns: ["**/*"],
   ios: {
@@ -34,7 +34,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: "com.beginnerloc.platepal",
     adaptiveIcon: {
       foregroundImage: "./assets/adaptive-icon.png",
-      backgroundColor: "#118AB2",
+      backgroundColor: "#FF7F50",
     },
     permissions: ["CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"],
   },

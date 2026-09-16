@@ -69,7 +69,7 @@ export default function SignIn() {
           <Text style={styles.logo}>PlatePal</Text>
         </Animated.View>
         <Animated.Text entering={FadeInDown.delay(150)} style={styles.tagline}>
-          Snap it. Track it. Share it with friends.
+          Snap. Track. Share.
         </Animated.Text>
       </LinearGradient>
 

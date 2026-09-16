@@ -103,7 +103,7 @@ export default function Notifications() {
           <EmptyState
             icon="notifications-outline"
             title="No notifications"
-            subtitle="When friends log meals or react to yours, you'll see it here."
+            subtitle="Activity from friends shows up here."
           />
         }
       />

@@ -173,8 +173,8 @@ export default function Track() {
           {logs.length === 0 ? (
             <EmptyState
               icon="restaurant-outline"
-              title="No meals logged"
-              subtitle="Tap the camera button to add your first meal."
+              title="No meals yet"
+              subtitle="Tap the camera to add one."
             />
           ) : (
             logs.map((log, i) => (

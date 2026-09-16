@@ -22,7 +22,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   assetBundlePatterns: ["**/*"],
   ios: {
     supportsTablet: true,
-    bundleIdentifier: "com.platepal.app",
+    bundleIdentifier: "com.beginnerloc.platepal",
     infoPlist: {
       NSCameraUsageDescription:
         "PlatePal uses your camera to snap photos of meals for calorie estimation.",
@@ -31,7 +31,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   android: {
-    package: "com.platepal.app",
+    package: "com.beginnerloc.platepal",
     adaptiveIcon: {
       foregroundImage: "./assets/adaptive-icon.png",
       backgroundColor: "#118AB2",

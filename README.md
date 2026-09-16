@@ -71,11 +71,18 @@ supabase functions deploy ai-persona        # the user's custom AI persona
 supabase functions deploy send-notification --no-verify-jwt  # Expo push (called by DB webhook)
 ```
 
-Then wire push delivery: **Dashboard → Database → Webhooks → Create**
-- Table `notifications`, event **INSERT**
-- Type **Supabase Edge Function → `send-notification`**
+Then wire push delivery so a new `notifications` row calls `send-notification`.
+Two ways:
 
-Now every row a trigger inserts into `notifications` (new meal, like, comment,
+- **SQL (recommended):** edit
+  [`supabase/migrations/20260916130000_push_webhook.sql`](supabase/migrations/20260916130000_push_webhook.sql)
+  to fill in your project ref + publishable key, then run it. It enables
+  `pg_net` and adds the trigger — no dashboard step.
+- **Dashboard:** **Integrations → Webhooks → Create** (older dashboards:
+  Database → Webhooks) → table `notifications`, event **INSERT**, type
+  **Supabase Edge Function → `send-notification`**, and add the auth header.
+
+Now every row inserted into `notifications` (new meal, like, comment,
 added-to-circle) fans out as a real push to the recipient's device.
 
 ### 4. Photo storage

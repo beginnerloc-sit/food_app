@@ -11,6 +11,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useTheme, brand, shadow } from "@/theme";
+import { useI18n } from "@/i18n";
 
 const ICONS: Record<string, { on: keyof typeof Ionicons.glyphMap; off: keyof typeof Ionicons.glyphMap }> = {
   index: { on: "home", off: "home-outline" },
@@ -19,17 +20,18 @@ const ICONS: Record<string, { on: keyof typeof Ionicons.glyphMap; off: keyof typ
   profile: { on: "person", off: "person-outline" },
 };
 
-const LABELS: Record<string, string> = {
-  index: "Feed",
-  track: "Track",
-  friends: "Friends",
-  profile: "Profile",
+const LABEL_KEY: Record<string, string> = {
+  index: "tab.feed",
+  track: "tab.track",
+  friends: "tab.friends",
+  profile: "tab.profile",
 };
 
 /** Custom bottom tab bar: animated tabs + a raised gradient capture FAB. */
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const { t } = useI18n();
 
   // Tabs to render, excluding hidden routes (capture, notifications).
   const visible = state.routes.filter(
@@ -51,7 +53,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         key={route.key}
         focused={focused}
         icon={focused ? icon.on : icon.off}
-        label={LABELS[route.name]}
+        label={t(LABEL_KEY[route.name])}
         onPress={() => {
           const event = navigation.emit({
             type: "tabPress",

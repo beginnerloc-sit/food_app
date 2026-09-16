@@ -19,13 +19,12 @@ import {
   GoalType,
   ActivityLevel,
   Sex,
-  GOAL_LABELS,
-  ACTIVITY_LABELS,
 } from "@/lib/goals";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/misc";
 import { PressableScale } from "@/components/PressableScale";
 import { useTheme, spacing, radius, brand, macros } from "@/theme";
+import { useI18n } from "@/i18n";
 
 const GOAL_ICON: Record<GoalType, keyof typeof Ionicons.glyphMap> = {
   lose: "trending-down",
@@ -37,6 +36,9 @@ export default function Goals() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { user, refreshProfile } = useAuth();
+  const { t } = useI18n();
+  const GOALS: GoalType[] = ["lose", "maintain", "gain"];
+  const ACTS: ActivityLevel[] = ["sedentary", "light", "moderate", "active", "athlete"];
 
   const [goalType, setGoalType] = useState<GoalType>("lose");
   const [sex, setSex] = useState<Sex>("female");
@@ -84,15 +86,15 @@ export default function Goals() {
         <PressableScale onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={26} color={colors.text} />
         </PressableScale>
-        <Text style={[styles.title, { color: colors.text }]}>Set your goal</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{t("goals.title")}</Text>
         <View style={{ width: 26 }} />
       </View>
 
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: 160 }}>
         {/* goal type */}
-        <Text style={[styles.label, { color: colors.textMuted }]}>I want to</Text>
+        <Text style={[styles.label, { color: colors.textMuted }]}>{t("goals.want")}</Text>
         <View style={styles.goalRow}>
-          {(Object.keys(GOAL_LABELS) as GoalType[]).map((g) => (
+          {GOALS.map((g) => (
             <PressableScale key={g} onPress={() => setGoalType(g)} style={{ flex: 1 }}>
               <Animated.View
                 layout={Layout.springify()}
@@ -116,7 +118,7 @@ export default function Goals() {
                     { color: goalType === g ? "#fff" : colors.text },
                   ]}
                 >
-                  {GOAL_LABELS[g]}
+                  {t(`goals.${g}`)}
                 </Text>
               </Animated.View>
             </PressableScale>
@@ -124,7 +126,7 @@ export default function Goals() {
         </View>
 
         {/* sex toggle */}
-        <Text style={[styles.label, { color: colors.textMuted }]}>Sex</Text>
+        <Text style={[styles.label, { color: colors.textMuted }]}>{t("goals.sex")}</Text>
         <View style={styles.segRow}>
           {(["female", "male"] as Sex[]).map((s) => (
             <Pressable
@@ -141,7 +143,7 @@ export default function Goals() {
                   { color: sex === s ? "#fff" : colors.textMuted },
                 ]}
               >
-                {s === "female" ? "Female" : "Male"}
+                {s === "female" ? t("goals.female") : t("goals.male")}
               </Text>
             </Pressable>
           ))}
@@ -149,15 +151,15 @@ export default function Goals() {
 
         {/* numbers */}
         <View style={styles.numRow}>
-          <NumInput label="Age" value={age} onChangeText={setAge} unit="yrs" />
-          <NumInput label="Weight" value={weight} onChangeText={setWeight} unit="kg" />
-          <NumInput label="Height" value={height} onChangeText={setHeight} unit="cm" />
+          <NumInput label={t("goals.age")} value={age} onChangeText={setAge} unit="yrs" />
+          <NumInput label={t("goals.weight")} value={weight} onChangeText={setWeight} unit="kg" />
+          <NumInput label={t("goals.height")} value={height} onChangeText={setHeight} unit="cm" />
         </View>
 
         {/* activity */}
-        <Text style={[styles.label, { color: colors.textMuted }]}>Activity level</Text>
+        <Text style={[styles.label, { color: colors.textMuted }]}>{t("goals.activity")}</Text>
         <View style={{ gap: 8 }}>
-          {(Object.keys(ACTIVITY_LABELS) as ActivityLevel[]).map((a) => (
+          {ACTS.map((a) => (
             <PressableScale key={a} onPress={() => setActivity(a)}>
               <View
                 style={[
@@ -170,7 +172,7 @@ export default function Goals() {
                 ]}
               >
                 <Text style={[styles.activityText, { color: colors.text }]}>
-                  {ACTIVITY_LABELS[a]}
+                  {t(`goals.act.${a}`)}
                 </Text>
                 {activity === a && (
                   <Ionicons name="checkmark-circle" size={20} color={brand.blue} />
@@ -183,15 +185,15 @@ export default function Goals() {
         {/* live result */}
         <Animated.View entering={FadeInDown} style={{ marginTop: spacing.xl }}>
           <Card style={{ backgroundColor: colors.text }}>
-            <Text style={styles.resultLabel}>Your daily target</Text>
+            <Text style={styles.resultLabel}>{t("goals.target")}</Text>
             <Text style={styles.resultCal}>
               {result.calories.toLocaleString()}
               <Text style={styles.resultCalUnit}> cal</Text>
             </Text>
             <View style={styles.resultMacros}>
-              <ResultMacro label="Protein" value={result.protein_g} color={macros.protein} />
-              <ResultMacro label="Carbs" value={result.carbs_g} color={macros.carbs} />
-              <ResultMacro label="Fat" value={result.fat_g} color={macros.fat} />
+              <ResultMacro label={t("track.protein")} value={result.protein_g} color={macros.protein} />
+              <ResultMacro label={t("track.carbs")} value={result.carbs_g} color={macros.carbs} />
+              <ResultMacro label={t("track.fat")} value={result.fat_g} color={macros.fat} />
             </View>
           </Card>
         </Animated.View>
@@ -207,7 +209,7 @@ export default function Goals() {
           },
         ]}
       >
-        <Button label="Save goal" onPress={save} loading={saving} />
+        <Button label={t("goals.save")} onPress={save} loading={saving} />
       </View>
     </View>
   );

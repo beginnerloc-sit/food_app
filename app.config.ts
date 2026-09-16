@@ -9,6 +9,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "PlatePal",
   slug: "platepal",
+  owner: "tienloc_expo",
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/icon.png",
@@ -23,6 +24,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: "com.beginnerloc.platepal",
+    buildNumber: "1",
     infoPlist: {
       NSCameraUsageDescription:
         "PlatePal uses your camera to snap photos of meals for calorie estimation.",
@@ -47,6 +49,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     "expo-asset",
     "expo-font",
+    "expo-localization",
     [
       "expo-camera",
       {

@@ -34,7 +34,11 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, context } = await req.json();
+    const { messages, context, language } = await req.json();
+    const langLine =
+      language === "vi"
+        ? "Reply in Vietnamese."
+        : "Reply in English.";
 
     const contextLine = context
       ? `Today's context — goal: ${context.goal ?? "?"} cal, consumed: ${
@@ -59,6 +63,7 @@ serve(async (req) => {
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "system", content: contextLine },
+          { role: "system", content: langLine },
           ...(messages ?? []),
         ],
       }),

@@ -16,11 +16,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/Button";
 import { useTheme, brand, radius, spacing } from "@/theme";
+import { useI18n } from "@/i18n";
 import { router } from "expo-router";
 
 export default function SignIn() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const { t } = useI18n();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,7 +71,7 @@ export default function SignIn() {
           <Text style={styles.logo}>PlatePal</Text>
         </Animated.View>
         <Animated.Text entering={FadeInDown.delay(150)} style={styles.tagline}>
-          Snap. Track. Share.
+          {t("auth.tagline")}
         </Animated.Text>
       </LinearGradient>
 
@@ -83,12 +85,12 @@ export default function SignIn() {
         >
           <Animated.View entering={FadeInDown.delay(250)}>
             <Text style={[styles.heading, { color: colors.text }]}>
-              {mode === "signin" ? "Welcome back" : "Create your account"}
+              {mode === "signin" ? t("auth.welcome") : t("auth.create")}
             </Text>
 
             <Field
               icon="mail-outline"
-              placeholder="Email"
+              placeholder={t("auth.email")}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -96,14 +98,14 @@ export default function SignIn() {
             />
             <Field
               icon="lock-closed-outline"
-              placeholder="Password"
+              placeholder={t("auth.password")}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
             />
 
             <Button
-              label={mode === "signin" ? "Sign in" : "Sign up"}
+              label={mode === "signin" ? t("auth.signIn") : t("auth.signUp")}
               onPress={submit}
               loading={loading}
               style={{ marginTop: spacing.md }}
@@ -113,9 +115,7 @@ export default function SignIn() {
               onPress={() => setMode(mode === "signin" ? "signup" : "signin")}
               style={[styles.switch, { color: colors.primary }]}
             >
-              {mode === "signin"
-                ? "New here? Create an account"
-                : "Already have an account? Sign in"}
+              {mode === "signin" ? t("auth.toSignUp") : t("auth.toSignIn")}
             </Text>
           </Animated.View>
         </ScrollView>

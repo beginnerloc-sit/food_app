@@ -21,11 +21,13 @@ import { Card } from "@/components/misc";
 import { Button } from "@/components/Button";
 import { PressableScale } from "@/components/PressableScale";
 import { useTheme, spacing, radius, brand } from "@/theme";
+import { useI18n } from "@/i18n";
 
 export default function ProfileScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { user, profile, refreshProfile, signOut } = useAuth();
+  const { t, lang, setLang } = useI18n();
 
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
@@ -106,9 +108,9 @@ export default function ProfileScreen() {
           <Animated.View entering={FadeInDown.delay(100)}>
             <Card>
               <View style={styles.statsRow}>
-                <Stat value={String(profile?.streak_count ?? 0)} label="Day streak" icon="flame" color={brand.coral} />
+                <Stat value={String(profile?.streak_count ?? 0)} label={t("profile.dayStreak")} icon="flame" color={brand.coral} />
                 <Divider />
-                <Stat value={String(profile?.daily_calorie_goal ?? 0)} label="Daily goal" icon="flag" color={brand.green} />
+                <Stat value={String(profile?.daily_calorie_goal ?? 0)} label={t("profile.dailyGoal")} icon="flag" color={brand.green} />
               </View>
             </Card>
           </Animated.View>
@@ -118,21 +120,21 @@ export default function ProfileScreen() {
             <Card>
               <View style={styles.cardHeader}>
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
-                  Profile
+                  {t("profile.title")}
                 </Text>
                 <PressableScale onPress={() => (editing ? save() : setEditing(true))}>
                   <Text style={{ color: colors.primary, fontWeight: "700" }}>
-                    {editing ? (saving ? "Saving…" : "Save") : "Edit"}
+                    {editing ? (saving ? t("common.saving") : t("common.save")) : t("profile.edit")}
                   </Text>
                 </PressableScale>
               </View>
 
               {editing ? (
                 <>
-                  <EditField label="Display name" value={displayName} onChangeText={setDisplayName} />
-                  <EditField label="Bio" value={bio} onChangeText={setBio} multiline />
+                  <EditField label={t("profile.displayName")} value={displayName} onChangeText={setDisplayName} />
+                  <EditField label={t("profile.bio")} value={bio} onChangeText={setBio} multiline />
                   <EditField
-                    label="Daily calorie goal"
+                    label={t("profile.calGoal")}
                     value={calGoal}
                     onChangeText={setCalGoal}
                     keyboardType="number-pad"
@@ -140,7 +142,7 @@ export default function ProfileScreen() {
                 </>
               ) : (
                 <Text style={[styles.bio, { color: colors.textMuted }]}>
-                  {profile?.bio || "No bio yet. Tap Edit to add one."}
+                  {profile?.bio || t("profile.noBio")}
                 </Text>
               )}
             </Card>
@@ -152,61 +154,82 @@ export default function ProfileScreen() {
               <MenuRow
                 icon="options-outline"
                 color={brand.coral}
-                title="Set your goal"
-                subtitle="Calorie and macro targets"
+                title={t("profile.setGoal")}
+                subtitle={t("profile.setGoalSub")}
                 onPress={() => router.push("/goals")}
               />
               <View style={{ height: 1, backgroundColor: colors.border, marginLeft: 64 }} />
               <MenuRow
                 icon="chatbubbles-outline"
                 color={brand.green}
-                title="Talk to Chef"
-                subtitle="Your AI food coach"
+                title={t("profile.talkChef")}
+                subtitle={t("profile.talkChefSub")}
                 onPress={() => router.push("/coach")}
               />
               <View style={{ height: 1, backgroundColor: colors.border, marginLeft: 64 }} />
               <MenuRow
                 icon="sparkles-outline"
                 color={brand.blue}
-                title="Your AI persona"
+                title={t("profile.aiPersona")}
                 subtitle={
                   profile?.ai_enabled
-                    ? `${profile.ai_emoji} ${profile.ai_name} is active`
-                    : "An AI that comments on your meals"
+                    ? t("profile.aiActive", { emoji: profile.ai_emoji, name: profile.ai_name })
+                    : t("profile.aiInactive")
                 }
                 onPress={() => router.push("/ai-persona")}
               />
             </Card>
           </Animated.View>
 
-          {/* storage */}
-          <Animated.View entering={FadeInDown.delay(200)} style={{ marginTop: spacing.lg }}>
+          {/* language */}
+          <Animated.View entering={FadeInDown.delay(225)} style={{ marginTop: spacing.lg }}>
             <Card>
               <View style={styles.integrationRow}>
-                <View style={[styles.intIcon, { backgroundColor: brand.green + "22" }]}>
-                  <Ionicons name="cloud-done-outline" size={22} color={brand.green} />
+                <View style={[styles.intIcon, { backgroundColor: brand.coral + "22" }]}>
+                  <Ionicons name="language" size={22} color={brand.coral} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.intTitle, { color: colors.text }]}>
-                    Cloud storage
+                    {t("profile.language")}
                   </Text>
                   <Text style={[styles.intSub, { color: colors.textMuted }]}>
-                    Meal photos backed up to the cloud
+                    {t("profile.languageSub")}
                   </Text>
                 </View>
-                <Ionicons name="checkmark-circle" size={22} color={brand.green} />
+                <View style={[styles.langToggle, { backgroundColor: colors.surfaceAlt }]}>
+                  {(["en", "vi"] as const).map((l) => (
+                    <PressableScale key={l} onPress={() => setLang(l)}>
+                      <View
+                        style={[
+                          styles.langBtn,
+                          { backgroundColor: lang === l ? colors.primary : "transparent" },
+                        ]}
+                      >
+                        <Text
+                          style={{
+                            color: lang === l ? "#fff" : colors.textMuted,
+                            fontWeight: "800",
+                            fontSize: 13,
+                          }}
+                        >
+                          {l === "en" ? "EN" : "VI"}
+                        </Text>
+                      </View>
+                    </PressableScale>
+                  ))}
+                </View>
               </View>
             </Card>
           </Animated.View>
 
           <View style={{ marginTop: spacing.xl }}>
             <Button
-              label="Sign out"
+              label={t("profile.signOut")}
               variant="secondary"
               onPress={() =>
-                Alert.alert("Sign out", "Are you sure?", [
-                  { text: "Cancel", style: "cancel" },
-                  { text: "Sign out", style: "destructive", onPress: signOut },
+                Alert.alert(t("profile.signOut"), t("profile.signOutConfirm"), [
+                  { text: t("common.cancel"), style: "cancel" },
+                  { text: t("profile.signOut"), style: "destructive", onPress: signOut },
                 ])
               }
               icon={<Ionicons name="log-out-outline" size={20} color={colors.text} />}
@@ -341,6 +364,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.md,
     padding: spacing.lg,
+  },
+  langToggle: { flexDirection: "row", borderRadius: radius.pill, padding: 3, gap: 2 },
+  langBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radius.pill,
   },
   integrationRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
   intIcon: {

@@ -29,12 +29,14 @@ import { WeeklyChart } from "@/components/WeeklyChart";
 import { Card, SectionTitle, EmptyState } from "@/components/misc";
 import { PressableScale } from "@/components/PressableScale";
 import { useTheme, spacing, brand, radius, macros, shadow } from "@/theme";
+import { useI18n } from "@/i18n";
 import type { FoodLog } from "@/types/database";
 
 export default function Track() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { user, profile } = useAuth();
+  const { t } = useI18n();
   const [date, setDate] = useState(new Date());
   const [logs, setLogs] = useState<FoodLog[]>([]);
   const [totals, setTotals] = useState<DailyTotals>({
@@ -106,7 +108,7 @@ export default function Track() {
             <Ionicons name="chevron-back" size={24} color={colors.textMuted} />
           </PressableScale>
           <Text style={[styles.dateText, { color: colors.text }]}>
-            {isToday(date) ? "Today" : format(date, "EEE, MMM d")}
+            {isToday(date) ? t("track.today") : format(date, "EEE, MMM d")}
           </Text>
           <PressableScale
             onPress={() => !isToday(date) && setDate((d) => addDays(d, 1))}
@@ -127,7 +129,7 @@ export default function Track() {
               <View style={[styles.streak, { backgroundColor: brand.yellow + "22" }]}>
                 <Ionicons name="flame" size={16} color={brand.coral} />
                 <Text style={[styles.streakText, { color: colors.text }]}>
-                  {profile.streak_count} day streak
+                  {t("track.streak", { n: profile.streak_count })}
                 </Text>
               </View>
             )}
@@ -135,7 +137,7 @@ export default function Track() {
               <View style={[styles.streak, { backgroundColor: colors.surfaceAlt }]}>
                 <Ionicons name="options-outline" size={16} color={colors.textMuted} />
                 <Text style={[styles.streakText, { color: colors.text }]}>
-                  Set goal
+                  {t("track.setGoal")}
                 </Text>
               </View>
             </PressableScale>
@@ -155,7 +157,7 @@ export default function Track() {
         {/* weekly chart */}
         <Animated.View entering={FadeInDown.delay(200)} style={styles.card}>
           <Card>
-            <SectionTitle title="This week" />
+            <SectionTitle title={t("track.week")} />
             <WeeklyChart data={weekly} goal={goal} />
           </Card>
         </Animated.View>
@@ -163,7 +165,7 @@ export default function Track() {
         {/* today's logs */}
         <View style={[styles.card, { marginTop: spacing.lg }]}>
           <SectionTitle
-            title={isToday(date) ? "Today's meals" : "Meals"}
+            title={isToday(date) ? t("track.todayMeals") : t("track.meals")}
             trailing={
               <Text style={{ color: colors.textMuted, fontWeight: "600" }}>
                 {logs.length}
@@ -173,8 +175,8 @@ export default function Track() {
           {logs.length === 0 ? (
             <EmptyState
               icon="restaurant-outline"
-              title="No meals yet"
-              subtitle="Tap the camera to add one."
+              title={t("track.empty.title")}
+              subtitle={t("track.empty.sub")}
             />
           ) : (
             logs.map((log, i) => (
@@ -200,7 +202,7 @@ export default function Track() {
             style={styles.coachFabInner}
           >
             <Text style={{ fontSize: 20 }}>👨‍🍳</Text>
-            <Text style={styles.coachFabText}>Ask Chef</Text>
+            <Text style={styles.coachFabText}>{t("track.askChef")}</Text>
           </LinearGradient>
         </PressableScale>
       </View>
@@ -210,6 +212,7 @@ export default function Track() {
 
 function LogRow({ log, onDelete }: { log: FoodLog; onDelete: () => void }) {
   const { colors } = useTheme();
+  const { t } = useI18n();
   return (
     <PressableScale onLongPress={onDelete}>
       <View style={[styles.logRow, { borderColor: colors.border }]}>
@@ -225,7 +228,7 @@ function LogRow({ log, onDelete }: { log: FoodLog; onDelete: () => void }) {
             {log.meal_name}
           </Text>
           <Text style={[styles.logMeta, { color: colors.textFaint }]}>
-            {log.meal_type} · {format(new Date(log.logged_at), "h:mm a")}
+            {t(`meal.${log.meal_type}`)} · {format(new Date(log.logged_at), "h:mm a")}
           </Text>
           <View style={styles.logMacros}>
             <Dot color={macros.protein} /><Tiny>{log.protein_g}p</Tiny>
@@ -235,7 +238,7 @@ function LogRow({ log, onDelete }: { log: FoodLog; onDelete: () => void }) {
         </View>
         <Text style={[styles.logCal, { color: colors.primary }]}>
           {log.calories}
-          <Text style={{ fontSize: 11, color: colors.textFaint }}> cal</Text>
+          <Text style={{ fontSize: 11, color: colors.textFaint }}> {t("common.cal")}</Text>
         </Text>
       </View>
     </PressableScale>

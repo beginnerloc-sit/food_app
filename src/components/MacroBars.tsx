@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useTheme, macros } from "@/theme";
+import { useI18n } from "@/i18n";
 
 interface MacroProps {
   label: string;
@@ -39,21 +40,22 @@ interface Props {
 }
 
 export function MacroBars({ protein, carbs, fat }: Props) {
+  const { t } = useI18n();
   return (
     <View style={styles.wrap}>
       <MacroBar
-        label="Protein"
+        label={t("track.protein")}
         value={protein.value}
         goal={protein.goal}
         color={macros.protein}
       />
       <MacroBar
-        label="Carbs"
+        label={t("track.carbs")}
         value={carbs.value}
         goal={carbs.goal}
         color={macros.carbs}
       />
-      <MacroBar label="Fat" value={fat.value} goal={fat.goal} color={macros.fat} />
+      <MacroBar label={t("track.fat")} value={fat.value} goal={fat.goal} color={macros.fat} />
     </View>
   );
 }

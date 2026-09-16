@@ -9,6 +9,7 @@ import {
   Platform,
   Pressable,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Image } from "expo-image";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -23,6 +24,7 @@ import {
   addComment,
   addAIComment,
   toggleLike,
+  deleteLog,
 } from "@/lib/api";
 import { generateComment, personaFromProfile } from "@/lib/persona";
 import { Avatar } from "@/components/Avatar";
@@ -30,6 +32,7 @@ import { MacroChips } from "@/components/MacroChips";
 import { LikeButton } from "@/components/LikeButton";
 import { PressableScale } from "@/components/PressableScale";
 import { useTheme, spacing, radius, brand } from "@/theme";
+import { useI18n } from "@/i18n";
 import type { FoodLogWithAuthor, CommentWithAuthor } from "@/types/database";
 
 export default function LogDetail() {
@@ -37,6 +40,7 @@ export default function LogDetail() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { user, profile } = useAuth();
+  const { t, lang } = useI18n();
 
   const [log, setLog] = useState<FoodLogWithAuthor | null>(null);
   const [comments, setComments] = useState<CommentWithAuthor[]>([]);
@@ -56,7 +60,8 @@ export default function LogDetail() {
           calories: log.calories,
           serving_size: log.serving_size,
         },
-        log.author.display_name || log.author.username
+        log.author.display_name || log.author.username,
+        lang
       );
       if (reply) {
         await addAIComment(log.id, user.id, reply, profile.ai_name, profile.ai_emoji);
@@ -118,13 +123,31 @@ export default function LogDetail() {
   if (!log) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.textMuted }}>Log not found.</Text>
+        <Text style={{ color: colors.textMuted }}>{t("log.notFound")}</Text>
       </View>
     );
   }
 
   const authorName = log.author.display_name || log.author.username;
   const isMe = log.user_id === user?.id;
+
+  const confirmDelete = () => {
+    Alert.alert(t("log.deleteTitle"), t("log.deleteMsg"), [
+      { text: t("common.cancel"), style: "cancel" },
+      {
+        text: t("common.delete"),
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteLog(log.id);
+            router.back();
+          } catch (e: any) {
+            Alert.alert("Couldn't delete", e.message ?? "Try again.");
+          }
+        },
+      },
+    ]);
+  };
 
   return (
     <KeyboardAvoidingView
@@ -145,6 +168,20 @@ export default function LogDetail() {
           >
             <Ionicons name="chevron-down" size={24} color="#fff" />
           </Pressable>
+          {isMe && (
+            <View style={[styles.ownerActions, { top: insets.top + 8 }]}>
+              <PressableScale onPress={() => router.push(`/edit-log/${log.id}` as any)}>
+                <View style={styles.roundIcon}>
+                  <Ionicons name="create-outline" size={20} color="#fff" />
+                </View>
+              </PressableScale>
+              <PressableScale onPress={confirmDelete}>
+                <View style={styles.roundIcon}>
+                  <Ionicons name="trash-outline" size={19} color="#fff" />
+                </View>
+              </PressableScale>
+            </View>
+          )}
         </View>
 
         <Animated.View entering={FadeInDown} style={styles.body}>
@@ -152,7 +189,7 @@ export default function LogDetail() {
             <Avatar uri={log.author.avatar_url} name={authorName} size={44} ring />
             <View style={{ flex: 1 }}>
               <Text style={[styles.author, { color: colors.text }]}>
-                {isMe ? "You" : authorName}
+                {isMe ? t("common.you") : authorName}
               </Text>
               <Text style={[styles.time, { color: colors.textFaint }]}>
                 {format(new Date(log.logged_at), "MMM d, h:mm a")}
@@ -168,7 +205,7 @@ export default function LogDetail() {
           <Text style={[styles.meal, { color: colors.text }]}>{log.meal_name}</Text>
           {log.serving_size ? (
             <Text style={[styles.serving, { color: colors.textMuted }]}>
-              {log.serving_size} · {log.meal_type}
+              {log.serving_size} · {t(`meal.${log.meal_type}`)}
             </Text>
           ) : null}
 
@@ -190,14 +227,16 @@ export default function LogDetail() {
           {/* comments */}
           <View style={styles.commentsHeader}>
             <Text style={[styles.commentsTitle, { color: colors.text }]}>
-              Comments {comments.length > 0 ? `(${comments.length})` : ""}
+              {t("log.comments")} {comments.length > 0 ? `(${comments.length})` : ""}
             </Text>
             {profile?.ai_enabled && (
               <PressableScale onPress={askAI} disabled={aiThinking}>
                 <View style={[styles.aiTakeBtn, { backgroundColor: brand.blue + "18" }]}>
                   <Ionicons name="sparkles" size={13} color={brand.blue} />
                   <Text style={[styles.aiTakeText, { color: brand.blue }]}>
-                    {aiThinking ? "Thinking…" : `${profile.ai_emoji} ${profile.ai_name}'s take`}
+                    {aiThinking
+                      ? `${t("persona.thinking")}…`
+                      : t("persona.take", { emoji: profile.ai_emoji, name: profile.ai_name })}
                   </Text>
                 </View>
               </PressableScale>
@@ -205,7 +244,7 @@ export default function LogDetail() {
           </View>
           {comments.length === 0 ? (
             <Text style={[styles.noComments, { color: colors.textFaint }]}>
-              Be the first to comment.
+              {t("log.noComments")}
             </Text>
           ) : (
             comments.map((c, i) => {
@@ -271,7 +310,7 @@ export default function LogDetail() {
         <TextInput
           value={text}
           onChangeText={setText}
-          placeholder="Add a comment…"
+          placeholder={`${t("log.addComment")}…`}
           placeholderTextColor={colors.textFaint}
           style={[
             styles.composerInput,
@@ -308,6 +347,15 @@ const styles = StyleSheet.create({
   back: {
     position: "absolute",
     left: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#0007",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  ownerActions: { position: "absolute", right: 16, flexDirection: "row", gap: 8 },
+  roundIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,

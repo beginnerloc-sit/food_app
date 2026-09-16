@@ -24,22 +24,21 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { getDailyTotals, getMyLogsForDay } from "@/lib/api";
-import { askCoach, COACH_PROMPTS, ChatMessage, CoachContext } from "@/lib/coach";
+import { askCoach, ChatMessage, CoachContext } from "@/lib/coach";
 import { PressableScale } from "@/components/PressableScale";
 import { useTheme, spacing, radius, brand } from "@/theme";
+import { useI18n } from "@/i18n";
 
 export default function Coach() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { user, profile } = useAuth();
+  const { t, lang } = useI18n();
   const scrollRef = useRef<ScrollView>(null);
+  const PROMPTS = [t("coach.p1"), t("coach.p2"), t("coach.p3"), t("coach.p4"), t("coach.p5")];
 
   const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      role: "assistant",
-      content:
-        "Hi, I'm Chef. Ask me anything about your food, or tap a prompt below.",
-    },
+    { role: "assistant", content: t("coach.intro") },
   ]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
@@ -69,7 +68,7 @@ export default function Coach() {
     setTyping(true);
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
     try {
-      const reply = await askCoach(next.slice(-8), context);
+      const reply = await askCoach(next.slice(-8), context, lang);
       setMessages((m) => [...m, { role: "assistant", content: reply }]);
     } catch (e: any) {
       setMessages((m) => [
@@ -103,9 +102,9 @@ export default function Coach() {
             <Text style={{ fontSize: 20 }}>👨‍🍳</Text>
           </View>
           <View>
-            <Text style={styles.headerTitle}>Chef</Text>
+            <Text style={styles.headerTitle}>{t("coach.name")}</Text>
             <Text style={styles.headerSub}>
-              {typing ? "typing…" : "Your AI food buddy"}
+              {typing ? `${t("coach.typing")}…` : t("coach.subtitle")}
             </Text>
           </View>
         </View>
@@ -136,7 +135,7 @@ export default function Coach() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.promptRow}
             >
-              {COACH_PROMPTS.map((p) => (
+              {PROMPTS.map((p) => (
                 <PressableScale key={p} onPress={() => send(p)}>
                   <View
                     style={[
@@ -168,7 +167,7 @@ export default function Coach() {
           <TextInput
             value={input}
             onChangeText={setInput}
-            placeholder="Message Chef…"
+            placeholder={`${t("coach.message")}…`}
             placeholderTextColor={colors.textFaint}
             style={[
               styles.input,

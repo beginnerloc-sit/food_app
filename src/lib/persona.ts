@@ -14,10 +14,11 @@ async function run(
   mode: "comment" | "caption" | "post",
   persona: Persona,
   meal?: MealLike | null,
-  authorName?: string
+  authorName?: string,
+  language?: string
 ): Promise<string> {
   const { data, error } = await supabase.functions.invoke("ai-persona", {
-    body: { mode, persona, meal, authorName },
+    body: { mode, persona, meal, authorName, language },
   });
   if (error) throw new Error(error.message ?? "AI persona unavailable");
   if ((data as any)?.error) throw new Error((data as any).error);
@@ -27,14 +28,16 @@ async function run(
 export const generateComment = (
   persona: Persona,
   meal: MealLike,
-  authorName?: string
-) => run("comment", persona, meal, authorName);
+  authorName?: string,
+  language?: string
+) => run("comment", persona, meal, authorName, language);
 
 export const generateCaption = (
   persona: Persona,
   meal: MealLike,
-  authorName?: string
-) => run("caption", persona, meal, authorName);
+  authorName?: string,
+  language?: string
+) => run("caption", persona, meal, authorName, language);
 
 export function personaFromProfile(profile: Profile | null): Persona {
   return {

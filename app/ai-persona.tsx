@@ -21,6 +21,7 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/misc";
 import { PressableScale } from "@/components/PressableScale";
 import { useTheme, spacing, radius, brand } from "@/theme";
+import { useI18n } from "@/i18n";
 
 const EMOJI_CHOICES = ["🤖", "🔥", "💪", "🧘", "💅", "🍝", "👽", "🦖", "🐸", "👑", "🎃", "🥑"];
 
@@ -28,6 +29,7 @@ export default function AiPersona() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { user, profile, refreshProfile } = useAuth();
+  const { t, lang } = useI18n();
 
   const [enabled, setEnabled] = useState(profile?.ai_enabled ?? false);
   const [autoComment, setAutoComment] = useState(profile?.ai_autocomment ?? true);
@@ -56,7 +58,8 @@ export default function AiPersona() {
       const text = await generateComment(
         { name, emoji, prompt },
         { meal_name: "avocado toast with a poached egg", calories: 340, serving_size: "1 slice" },
-        profile?.display_name ?? profile?.username ?? "you"
+        profile?.display_name ?? profile?.username ?? "you",
+        lang
       );
       setPreview(text);
     } catch (e: any) {
@@ -106,7 +109,7 @@ export default function AiPersona() {
         <View style={styles.headerCenter}>
           <Text style={styles.bigEmoji}>{emoji}</Text>
           <Text style={styles.headerTitle}>{name || "Your AI"}</Text>
-          <Text style={styles.headerSub}>Design your own AI character</Text>
+          <Text style={styles.headerSub}>{t("persona.header")}</Text>
         </View>
       </LinearGradient>
 
@@ -114,15 +117,15 @@ export default function AiPersona() {
         {/* enable */}
         <Card>
           <ToggleRow
-            title="Enable my AI"
-            subtitle="Let your AI join the feed"
+            title={t("persona.enable")}
+            subtitle={t("persona.enableSub")}
             value={enabled}
             onValueChange={setEnabled}
           />
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <ToggleRow
-            title="Auto-comment on my meals"
-            subtitle="Reacts to every meal you post"
+            title={t("persona.auto")}
+            subtitle={t("persona.autoSub")}
             value={autoComment}
             onValueChange={setAutoComment}
             disabled={!enabled}
@@ -131,7 +134,7 @@ export default function AiPersona() {
 
         {/* presets */}
         <Text style={[styles.label, { color: colors.textMuted }]}>
-          Start from a preset
+          {t("persona.preset")}
         </Text>
         <ScrollView
           horizontal
@@ -165,12 +168,12 @@ export default function AiPersona() {
         </ScrollView>
 
         {/* name + emoji */}
-        <Text style={[styles.label, { color: colors.textMuted }]}>Name & icon</Text>
+        <Text style={[styles.label, { color: colors.textMuted }]}>{t("persona.nameIcon")}</Text>
         <View style={{ flexDirection: "row", gap: spacing.md }}>
           <TextInput
             value={name}
             onChangeText={setName}
-            placeholder="AI name"
+            placeholder={t("persona.namePh")}
             placeholderTextColor={colors.textFaint}
             style={[
               styles.input,
@@ -202,12 +205,12 @@ export default function AiPersona() {
 
         {/* prompt */}
         <Text style={[styles.label, { color: colors.textMuted }]}>
-          Personality (prompt)
+          {t("persona.personality")}
         </Text>
         <TextInput
           value={prompt}
           onChangeText={setPrompt}
-          placeholder="How should your AI talk? e.g. a dramatic French chef obsessed with butter."
+          placeholder={t("persona.personalityPh")}
           placeholderTextColor={colors.textFaint}
           multiline
           style={[
@@ -222,7 +225,7 @@ export default function AiPersona() {
           <View style={[styles.previewBtn, { borderColor: colors.primary }]}>
             <Ionicons name="sparkles" size={16} color={colors.primary} />
             <Text style={[styles.previewBtnText, { color: colors.primary }]}>
-              {previewing ? "Thinking…" : "Preview a comment"}
+              {previewing ? `${t("persona.thinking")}…` : t("persona.preview")}
             </Text>
           </View>
         </PressableScale>
@@ -254,7 +257,7 @@ export default function AiPersona() {
           },
         ]}
       >
-        <Button label="Save persona" onPress={save} loading={saving} />
+        <Button label={t("persona.save")} onPress={save} loading={saving} />
       </View>
     </View>
   );

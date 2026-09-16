@@ -16,6 +16,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/Button";
 import { useTheme, radius, spacing, brand } from "@/theme";
+import { useI18n } from "@/i18n";
 import { router } from "expo-router";
 
 /** After sign-up: choose a username and daily calorie goal. */
@@ -23,6 +24,7 @@ export default function Onboarding() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { user, refreshProfile } = useAuth();
+  const { t } = useI18n();
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [goal, setGoal] = useState("2000");
@@ -31,7 +33,7 @@ export default function Onboarding() {
   const finish = async () => {
     const uname = username.trim().toLowerCase().replace(/\s+/g, "_");
     if (uname.length < 3) {
-      Alert.alert("Pick a username", "At least 3 characters, no spaces.");
+      Alert.alert(t("onb.username"), t("onb.pickUsername"));
       return;
     }
     if (!user) return;
@@ -72,28 +74,28 @@ export default function Onboarding() {
             <Ionicons name="person-add" size={30} color={brand.green} />
           </View>
           <Text style={[styles.title, { color: colors.text }]}>
-            Set up your profile
+            {t("onb.title")}
           </Text>
           <Text style={[styles.sub, { color: colors.textMuted }]}>
-            This is how friends will find you.
+            {t("onb.sub")}
           </Text>
         </Animated.View>
 
         <Animated.View entering={FadeInDown.delay(150)} style={{ marginTop: spacing.xxl }}>
-          <Label text="Username" />
+          <Label text={t("onb.username")} />
           <Input
             value={username}
             onChangeText={setUsername}
-            placeholder="e.g. hungry_hannah"
+            placeholder={t("onb.usernamePh")}
             autoCapitalize="none"
           />
-          <Label text="Display name" />
+          <Label text={t("onb.displayName")} />
           <Input
             value={displayName}
             onChangeText={setDisplayName}
             placeholder="Hannah R."
           />
-          <Label text="Daily calorie goal" />
+          <Label text={t("onb.goal")} />
           <Input
             value={goal}
             onChangeText={setGoal}
@@ -101,7 +103,7 @@ export default function Onboarding() {
             keyboardType="number-pad"
           />
           <Button
-            label="Start tracking"
+            label={t("onb.start")}
             onPress={finish}
             loading={loading}
             style={{ marginTop: spacing.lg }}

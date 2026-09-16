@@ -11,12 +11,14 @@ import { LogCard } from "@/components/LogCard";
 import { EmptyState } from "@/components/misc";
 import { PressableScale } from "@/components/PressableScale";
 import { useTheme, spacing, brand } from "@/theme";
+import { useI18n } from "@/i18n";
 import type { FoodLogWithAuthor } from "@/types/database";
 
 export default function Feed() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+  const { t } = useI18n();
   const [logs, setLogs] = useState<FoodLogWithAuthor[]>([]);
   const [unread, setUnread] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
@@ -131,8 +133,8 @@ export default function Feed() {
           !loading ? (
             <EmptyState
               icon="camera-outline"
-              title="Nothing here yet"
-              subtitle="Snap a meal or add friends to fill your feed."
+              title={t("feed.empty.title")}
+              subtitle={t("feed.empty.sub")}
             />
           ) : null
         }

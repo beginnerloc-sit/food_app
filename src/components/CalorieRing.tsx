@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import Svg, { Circle, G } from "react-native-svg";
 import { useTheme } from "@/theme";
+import { useI18n } from "@/i18n";
 
 interface Props {
   consumed: number;
@@ -21,6 +22,7 @@ export function CalorieRing({
   strokeWidth = 18,
 }: Props) {
   const { colors } = useTheme();
+  const { t } = useI18n();
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const pct = goal > 0 ? Math.min(consumed / goal, 1) : 0;
@@ -60,7 +62,7 @@ export function CalorieRing({
           {Math.abs(remaining).toLocaleString()}
         </Text>
         <Text style={[styles.label, { color: colors.textMuted }]}>
-          {over ? "cal over" : "cal left"}
+          {over ? t("track.calOver") : t("track.calLeft")}
         </Text>
         <Text style={[styles.sub, { color: colors.textFaint }]}>
           {consumed.toLocaleString()} / {goal.toLocaleString()}

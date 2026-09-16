@@ -10,6 +10,7 @@ import { MacroChips } from "./MacroChips";
 import { LikeButton } from "./LikeButton";
 import { PressableScale } from "./PressableScale";
 import { useTheme, radius, spacing, shadow, brand } from "@/theme";
+import { useI18n } from "@/i18n";
 import type { FoodLogWithAuthor } from "@/types/database";
 
 interface Props {
@@ -32,6 +33,7 @@ const CONFIDENCE_COLOR = (c: number | null) =>
 /** A single meal post in the social feed. */
 export function LogCard({ log, index = 0, isMe, onToggleLike }: Props) {
   const { colors } = useTheme();
+  const { t } = useI18n();
   const name = log.author.display_name || log.author.username;
 
   return (
@@ -51,7 +53,7 @@ export function LogCard({ log, index = 0, isMe, onToggleLike }: Props) {
           <Avatar uri={log.author.avatar_url} name={name} size={40} ring />
           <View style={{ flex: 1 }}>
             <Text style={[styles.name, { color: colors.text }]}>
-              {isMe ? "You" : name}
+              {isMe ? t("common.you") : name}
             </Text>
             <View style={styles.metaRow}>
               <Ionicons
@@ -60,7 +62,7 @@ export function LogCard({ log, index = 0, isMe, onToggleLike }: Props) {
                 color={colors.textFaint}
               />
               <Text style={[styles.meta, { color: colors.textFaint }]}>
-                {log.meal_type} ·{" "}
+                {t(`meal.${log.meal_type}`)} ·{" "}
                 {formatDistanceToNow(new Date(log.logged_at), { addSuffix: true })}
               </Text>
             </View>

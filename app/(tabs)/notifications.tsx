@@ -11,6 +11,7 @@ import { Avatar } from "@/components/Avatar";
 import { PressableScale } from "@/components/PressableScale";
 import { EmptyState } from "@/components/misc";
 import { useTheme, spacing, brand } from "@/theme";
+import { useI18n } from "@/i18n";
 import type { NotificationWithActor, NotificationType } from "@/types/database";
 
 const ICON: Record<NotificationType, { icon: keyof typeof Ionicons.glyphMap; color: string }> = {
@@ -26,6 +27,7 @@ export default function Notifications() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+  const { t } = useI18n();
   const [items, setItems] = useState<NotificationWithActor[]>([]);
 
   const load = useCallback(async () => {
@@ -48,7 +50,7 @@ export default function Notifications() {
         <PressableScale onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={26} color={colors.text} />
         </PressableScale>
-        <Text style={[styles.title, { color: colors.text }]}>Notifications</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{t("notif.title")}</Text>
         <View style={{ width: 26 }} />
       </View>
 
@@ -102,8 +104,8 @@ export default function Notifications() {
         ListEmptyComponent={
           <EmptyState
             icon="notifications-outline"
-            title="No notifications"
-            subtitle="Activity from friends shows up here."
+            title={t("notif.empty.title")}
+            subtitle={t("notif.empty.sub")}
           />
         }
       />

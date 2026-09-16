@@ -27,12 +27,14 @@ import { Avatar } from "@/components/Avatar";
 import { PressableScale } from "@/components/PressableScale";
 import { SectionTitle, EmptyState } from "@/components/misc";
 import { useTheme, spacing, radius, brand } from "@/theme";
+import { useI18n } from "@/i18n";
 import type { Profile } from "@/types/database";
 
 export default function Friends() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
+  const { t } = useI18n();
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Profile[]>([]);
@@ -99,7 +101,7 @@ export default function Friends() {
         contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 120 }}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={[styles.title, { color: colors.text }]}>Friends</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{t("friends.title")}</Text>
 
         {/* search */}
         <View
@@ -112,7 +114,7 @@ export default function Friends() {
           <TextInput
             value={query}
             onChangeText={runSearch}
-            placeholder="Search by username"
+            placeholder={t("friends.search")}
             placeholderTextColor={colors.textFaint}
             autoCapitalize="none"
             style={[styles.searchInput, { color: colors.text }]}
@@ -129,11 +131,11 @@ export default function Friends() {
                   profile={p}
                   trailing={
                     friendIds.has(p.id) ? (
-                      <Tag label="Friends" color={brand.green} />
+                      <Tag label={t("friends.friendsTag")} color={brand.green} />
                     ) : outgoingIds.has(p.id) ? (
-                      <Tag label="Requested" color={brand.yellow} />
+                      <Tag label={t("friends.requested")} color={brand.yellow} />
                     ) : (
-                      <ActionBtn icon="person-add" label="Add" onPress={() => add(p)} />
+                      <ActionBtn icon="person-add" label={t("friends.add")} onPress={() => add(p)} />
                     )
                   }
                 />
@@ -145,7 +147,7 @@ export default function Friends() {
         {/* incoming requests */}
         {incoming.length > 0 && (
           <View style={styles.section}>
-            <SectionTitle title={`Requests (${incoming.length})`} />
+            <SectionTitle title={t("friends.requests", { n: incoming.length })} />
             {incoming.map((edge) => (
               <Animated.View key={edge.friendshipId} entering={FadeInDown} layout={Layout}>
                 <UserRow
@@ -173,23 +175,23 @@ export default function Friends() {
 
         {/* tracker circle explainer + friends list */}
         <View style={styles.section}>
-          <SectionTitle title={`Your friends (${accepted.length})`} />
+          <SectionTitle title={t("friends.yours", { n: accepted.length })} />
           <View style={[styles.hint, { backgroundColor: brand.blue + "14" }]}>
             <Ionicons name="notifications" size={16} color={brand.blue} />
             <Text style={[styles.hintText, { color: colors.textMuted }]}>
-              Tap the bell to add someone to your{" "}
+              {t("friends.hintPre")}
               <Text style={{ fontWeight: "700", color: colors.text }}>
-                circle
+                {t("friends.circle")}
               </Text>
-              . They get a ping when you log a meal.
+              {t("friends.hintPost")}
             </Text>
           </View>
 
           {accepted.length === 0 ? (
             <EmptyState
               icon="people-outline"
-              title="No friends yet"
-              subtitle="Search above to add friends."
+              title={t("friends.empty.title")}
+              subtitle={t("friends.empty.sub")}
             />
           ) : (
             accepted.map((edge) => (

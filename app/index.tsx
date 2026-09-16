@@ -1,15 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { Redirect } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/theme";
+import { WELCOME_KEY } from "./welcome";
 
-/** Entry gate: route to auth, onboarding, or the app. */
+/** Entry gate: welcome carousel, then auth, onboarding, or the app. */
 export default function Index() {
   const { session, profile, loading } = useAuth();
   const { colors } = useTheme();
+  const [welcomeSeen, setWelcomeSeen] = useState<boolean | null>(null);
 
-  if (loading) {
+  useEffect(() => {
+    AsyncStorage.getItem(WELCOME_KEY)
+      .then((v) => setWelcomeSeen(v === "1"))
+      .catch(() => setWelcomeSeen(false));
+  }, []);
+
+  if (loading || welcomeSeen === null) {
     return (
       <View
         style={{
@@ -24,8 +33,9 @@ export default function Index() {
     );
   }
 
+  // First run on this device: show the welcome carousel.
+  if (!welcomeSeen) return <Redirect href={"/welcome" as any} />;
   if (!session) return <Redirect href="/(auth)/sign-in" />;
-  // Signed in but no username yet → finish setup.
   if (!profile?.username) return <Redirect href="/(auth)/onboarding" />;
   return <Redirect href="/(tabs)" />;
 }

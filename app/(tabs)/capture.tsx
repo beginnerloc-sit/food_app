@@ -34,6 +34,7 @@ import { generateCaption, generateComment, personaFromProfile } from "@/lib/pers
 import { Button } from "@/components/Button";
 import { PressableScale } from "@/components/PressableScale";
 import { useTheme, brand, radius, spacing, macros, shadow } from "@/theme";
+import { useI18n } from "@/i18n";
 import type { MealPrediction } from "@/types/meal";
 import type { MealType } from "@/types/database";
 
@@ -44,6 +45,7 @@ export default function Capture() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { user, profile } = useAuth();
+  const { t, lang } = useI18n();
   const cameraRef = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
 
@@ -65,7 +67,7 @@ export default function Capture() {
 
   const writeCaption = async () => {
     if (!name.trim()) {
-      Alert.alert("Name your meal first", "I need to know what you ate.");
+      Alert.alert(t("capture.mealName"), t("capture.nameMeal"));
       return;
     }
     setCaptionLoading(true);
@@ -73,7 +75,8 @@ export default function Capture() {
       const text = await generateCaption(
         personaFromProfile(profile),
         { meal_name: name, calories: num(cal), serving_size: serving },
-        profile?.display_name ?? profile?.username ?? "me"
+        profile?.display_name ?? profile?.username ?? "me",
+        lang
       );
       setCaption(text);
     } catch (e: any) {
@@ -136,7 +139,7 @@ export default function Capture() {
   const save = async () => {
     if (!user || !photoUri) return;
     if (!name.trim()) {
-      Alert.alert("Name your meal", "Please enter a meal name.");
+      Alert.alert(t("capture.mealName"), t("capture.nameMeal"));
       return;
     }
     setSaving(true);
@@ -168,7 +171,8 @@ export default function Capture() {
         generateComment(
           personaFromProfile(profile),
           { meal_name: name.trim(), calories: num(cal), serving_size: serving.trim() },
-          profile.display_name ?? profile.username
+          profile.display_name ?? profile.username,
+          lang
         )
           .then((text) =>
             text
@@ -207,15 +211,15 @@ export default function Capture() {
       <View style={[styles.permWrap, { backgroundColor: colors.background }]}>
         <Ionicons name="camera" size={60} color={colors.primary} />
         <Text style={[styles.permTitle, { color: colors.text }]}>
-          Camera access
+          {t("capture.permTitle")}
         </Text>
         <Text style={[styles.permSub, { color: colors.textMuted }]}>
-          Snap meals to log them.
+          {t("capture.permSub")}
         </Text>
-        <Button label="Grant access" onPress={requestPermission} fullWidth={false} />
+        <Button label={t("capture.grant")} onPress={requestPermission} fullWidth={false} />
         <Pressable onPress={pickPhoto} style={{ marginTop: 16 }}>
           <Text style={{ color: colors.primary, fontWeight: "600" }}>
-            Or pick from library
+            {t("capture.pickLibrary")}
           </Text>
         </Pressable>
       </View>
@@ -244,7 +248,7 @@ export default function Capture() {
               >
                 <Ionicons name="sparkles" size={13} color="#fff" />
                 <Text style={styles.aiChipText}>
-                  {Math.round(prediction.confidence * 100)}% confident
+                  {t("capture.confident", { n: Math.round(prediction.confidence * 100) })}
                 </Text>
               </Animated.View>
             )}
@@ -252,45 +256,45 @@ export default function Capture() {
 
           <Animated.View entering={SlideInDown.springify().damping(18)} style={styles.reviewBody}>
             <Text style={[styles.reviewHeading, { color: colors.text }]}>
-              {prediction?.confidence ? "Nutrition estimate" : "Log meal"}
+              {prediction?.confidence ? t("capture.estimate") : t("capture.logMeal")}
             </Text>
             {prediction?.items?.length ? (
               <Text style={[styles.items, { color: colors.textMuted }]}>
-                Detected: {prediction.items.join(", ")}
+                {t("capture.detected", { items: prediction.items.join(", ") })}
               </Text>
             ) : null}
 
-            <Field label="Meal name" value={name} onChangeText={setName} />
+            <Field label={t("capture.mealName")} value={name} onChangeText={setName} />
             <Field
-              label="Serving size"
+              label={t("capture.serving")}
               value={serving}
               onChangeText={setServing}
             />
 
             {/* meal type selector */}
             <Text style={[styles.fieldLabel, { color: colors.textMuted }]}>
-              Meal type
+              {t("capture.mealType")}
             </Text>
             <View style={styles.typeRow}>
-              {MEAL_TYPES.map((t) => (
+              {MEAL_TYPES.map((mt) => (
                 <Pressable
-                  key={t}
-                  onPress={() => setMealType(t)}
+                  key={mt}
+                  onPress={() => setMealType(mt)}
                   style={[
                     styles.typeBtn,
                     {
                       backgroundColor:
-                        mealType === t ? colors.primary : colors.surfaceAlt,
+                        mealType === mt ? colors.primary : colors.surfaceAlt,
                     },
                   ]}
                 >
                   <Text
                     style={[
                       styles.typeText,
-                      { color: mealType === t ? "#fff" : colors.textMuted },
+                      { color: mealType === mt ? "#fff" : colors.textMuted },
                     ]}
                   >
-                    {t}
+                    {t(`meal.${mt}`)}
                   </Text>
                 </Pressable>
               ))}
@@ -299,25 +303,25 @@ export default function Capture() {
             {/* macros grid */}
             <View style={styles.macroGrid}>
               <NumField
-                label="Calories"
+                label={t("capture.calories")}
                 value={cal}
                 onChangeText={setCal}
                 color={macros.calories}
               />
               <NumField
-                label="Protein (g)"
+                label={t("capture.protein")}
                 value={protein}
                 onChangeText={setProtein}
                 color={macros.protein}
               />
               <NumField
-                label="Carbs (g)"
+                label={t("capture.carbs")}
                 value={carbs}
                 onChangeText={setCarbs}
                 color={macros.carbs}
               />
               <NumField
-                label="Fat (g)"
+                label={t("capture.fat")}
                 value={fat}
                 onChangeText={setFat}
                 color={macros.fat}
@@ -327,15 +331,17 @@ export default function Capture() {
             {/* caption + AI writer */}
             <View style={styles.captionHeader}>
               <Text style={[styles.fieldLabel, { color: colors.textMuted, marginTop: 0 }]}>
-                Caption
+                {t("capture.caption")}
               </Text>
               <PressableScale onPress={writeCaption}>
                 <View style={[styles.aiWriteBtn, { backgroundColor: brand.blue + "18" }]}>
                   <Ionicons name="sparkles" size={13} color={brand.blue} />
                   <Text style={[styles.aiWriteText, { color: brand.blue }]}>
                     {captionLoading
-                      ? "Writing…"
-                      : `Write with ${profile?.ai_emoji ?? "🤖"} ${profile?.ai_name ?? "AI"}`}
+                      ? `${t("capture.writing")}…`
+                      : t("capture.writeWith", {
+                          name: `${profile?.ai_emoji ?? "🤖"} ${profile?.ai_name ?? "AI"}`,
+                        })}
                   </Text>
                 </View>
               </PressableScale>
@@ -343,7 +349,7 @@ export default function Capture() {
             <TextInput
               value={caption}
               onChangeText={setCaption}
-              placeholder="Say something about this meal…"
+              placeholder={t("capture.captionPlaceholder")}
               placeholderTextColor={colors.textFaint}
               multiline
               style={[
@@ -371,7 +377,7 @@ export default function Capture() {
           ]}
         >
           <Button
-            label="Save meal"
+            label={t("capture.save")}
             onPress={save}
             loading={saving}
             icon={<Ionicons name="checkmark-circle" size={20} color="#fff" />}
@@ -390,8 +396,8 @@ export default function Capture() {
         )}
         <View style={styles.analyzeOverlay} />
         <ScannerPulse />
-        <Text style={styles.analyzeText}>Analyzing</Text>
-        <Text style={styles.analyzeSub}>Estimating calories and macros</Text>
+        <Text style={styles.analyzeText}>{t("capture.analyzing")}</Text>
+        <Text style={styles.analyzeSub}>{t("capture.estimating")}</Text>
       </View>
     );
   }
@@ -401,7 +407,7 @@ export default function Capture() {
     <View style={{ flex: 1, backgroundColor: "#000" }}>
       <CameraView ref={cameraRef} style={{ flex: 1 }} facing="back">
         <View style={[styles.camTop, { paddingTop: insets.top + 8 }]}>
-          <Text style={styles.camHint}>Point at your meal</Text>
+          <Text style={styles.camHint}>{t("capture.point")}</Text>
         </View>
         {/* framing guide */}
         <View style={styles.frame} pointerEvents="none">

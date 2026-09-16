@@ -7,7 +7,7 @@ import type {
   NotificationWithActor,
   MealType,
 } from "@/types/database";
-import { format } from "date-fns";
+import { format, startOfDay, endOfDay } from "date-fns";
 
 const authorCols = "id, username, display_name, avatar_url";
 
@@ -77,13 +77,22 @@ export async function deleteLog(logId: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function updateLog(
+  logId: string,
+  patch: Partial<CreateLogInput>
+): Promise<void> {
+  const { error } = await supabase.from("food_logs").update(patch).eq("id", logId);
+  if (error) throw error;
+}
+
 export async function getMyLogsForDay(
   userId: string,
   day: Date
 ): Promise<FoodLog[]> {
-  const dayStr = format(day, "yyyy-MM-dd");
-  const start = `${dayStr}T00:00:00`;
-  const end = `${dayStr}T23:59:59.999`;
+  // Use the device's local day, sent as UTC instants, so meals land on the
+  // correct calendar day regardless of the database timezone.
+  const start = startOfDay(day).toISOString();
+  const end = endOfDay(day).toISOString();
   const { data } = await supabase
     .from("food_logs")
     .select("*")
@@ -106,14 +115,19 @@ export async function getDailyTotals(
   userId: string,
   day: Date
 ): Promise<DailyTotals> {
-  const { data, error } = await supabase.rpc("daily_totals", {
-    target_user: userId,
-    day: format(day, "yyyy-MM-dd"),
-  });
-  if (error || !data?.[0]) {
-    return { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0, log_count: 0 };
-  }
-  return data[0] as DailyTotals;
+  // Derive totals from the day's logs (same local-day window as the list) so
+  // the ring and the meal list always agree.
+  const logs = await getMyLogsForDay(userId, day);
+  return logs.reduce(
+    (acc, l) => ({
+      calories: acc.calories + l.calories,
+      protein_g: acc.protein_g + l.protein_g,
+      carbs_g: acc.carbs_g + l.carbs_g,
+      fat_g: acc.fat_g + l.fat_g,
+      log_count: acc.log_count + 1,
+    }),
+    { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0, log_count: 0 }
+  );
 }
 
 /** Weekly calorie totals (last 7 days incl. today) for the bar chart. */

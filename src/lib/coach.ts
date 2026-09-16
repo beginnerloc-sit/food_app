@@ -14,10 +14,11 @@ export interface CoachContext {
 /** Send the conversation + daily context to the coach-chat edge function. */
 export async function askCoach(
   messages: ChatMessage[],
-  context?: CoachContext
+  context?: CoachContext,
+  language?: string
 ): Promise<string> {
   const { data, error } = await supabase.functions.invoke("coach-chat", {
-    body: { messages, context },
+    body: { messages, context, language },
   });
   if (error) throw new Error(error.message ?? "Coach is unavailable");
   if ((data as any)?.error) throw new Error((data as any).error);

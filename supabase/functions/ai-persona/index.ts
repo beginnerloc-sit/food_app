@@ -33,7 +33,9 @@ serve(async (req) => {
   }
 
   try {
-    const { mode, persona, meal, authorName } = await req.json();
+    const { mode, persona, meal, authorName, language } = await req.json();
+    const langLine =
+      language === "vi" ? " Write in Vietnamese." : " Write in English.";
 
     const personaPrompt = (persona?.prompt ?? "").toString().slice(0, 1500);
     const personaName = persona?.name ?? "Sidekick";
@@ -63,7 +65,7 @@ serve(async (req) => {
         temperature: 1.0,
         max_tokens: 120,
         messages: [
-          { role: "system", content: GUARDRAILS },
+          { role: "system", content: GUARDRAILS + langLine },
           { role: "system", content: `PERSONA (${personaName}): ${personaPrompt}` },
           { role: "user", content: task },
         ],

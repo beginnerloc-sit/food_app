@@ -65,7 +65,6 @@ create table if not exists public.food_logs (
   meal_type     text not null default 'snack'
                 check (meal_type in ('breakfast','lunch','dinner','snack')),
   photo_url     text,
-  drive_file_id text,
   ai_confidence real,
   notes         text,
   logged_at     timestamptz not null default now(),

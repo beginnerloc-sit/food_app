@@ -5,7 +5,7 @@ calories → it's logged and shared to the friends in your tracker circle, who g
 a push notification.** The feed mixes your friends' meals with dietary meal-prep
 articles, and **Chef**, a witty AI food buddy, roasts your day and gives tips.
 
-Built with **Expo (React Native) · Supabase · OpenAI (gpt-4o-mini) · Google Drive**.
+Built with **Expo (React Native) · Supabase · OpenAI (gpt-4o-mini)**.
 
 ---
 
@@ -20,7 +20,7 @@ Built with **Expo (React Native) · Supabase · OpenAI (gpt-4o-mini) · Google D
 | 👥 **Social** | Add friends, like & comment, real-time feed. |
 | 🔔 **Tracker circle** | Add friends to your circle — they get a push every time you log a meal. |
 | 📰 **Discover** | Meal-prep articles from Spoonacular, filterable by diet. |
-| ☁️ **Google Drive** | Meal photos back up to the user's Drive (falls back to Supabase Storage). |
+| ☁️ **Cloud storage** | Meal photos are uploaded to Supabase Storage (`meal-photos` bucket). |
 
 Design uses the brand palette: coral `#FF7F50` · yellow `#FFD166` · green `#06D6A0` · blue `#118AB2`.
 
@@ -70,13 +70,11 @@ Then wire push delivery: **Dashboard → Database → Webhooks → Create**
 Now every row a trigger inserts into `notifications` (new meal, like, comment,
 added-to-circle) fans out as a real push to the recipient's device.
 
-### 4. Google OAuth (Drive upload)
+### 4. Photo storage
 
-1. [Google Cloud Console](https://console.cloud.google.com) → enable the
-   **Google Drive API**.
-2. Create OAuth client IDs (Web, iOS, Android) and add them to `.env`
-   (`EXPO_PUBLIC_GOOGLE_*_CLIENT_ID`). The scope used is `drive.file`.
-3. In the app: **Profile → Google Drive** toggle to connect.
+Nothing to configure — running [`schema.sql`](supabase/schema.sql) creates the
+public `meal-photos` bucket and its access policies. Meal photos and avatars are
+uploaded straight to Supabase Storage from the app ([`src/lib/storage.ts`](src/lib/storage.ts)).
 
 ### 5. Spoonacular (Discover feed)
 
@@ -107,7 +105,7 @@ app/                       # expo-router screens (file-based routing)
 src/
   components/              # Avatar, CalorieRing, LogCard, TabBar, ... (all animated)
   context/AuthContext.tsx  # session + profile + push registration
-  lib/                     # supabase, api, mealAnalysis, googleDrive, coach, goals, notifications
+  lib/                     # supabase, api, mealAnalysis, storage, coach, goals, notifications
   theme/                   # palette + spacing/radius/typography tokens
 supabase/
   schema.sql               # tables, RLS, triggers, storage

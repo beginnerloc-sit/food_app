@@ -54,7 +54,6 @@ export interface FoodLog {
   fat_g: number;
   meal_type: MealType;
   photo_url: string | null;
-  drive_file_id: string | null;
   ai_confidence: number | null;
   notes: string | null;
   logged_at: string;

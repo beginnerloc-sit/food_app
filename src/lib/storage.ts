@@ -2,8 +2,8 @@ import * as FileSystem from "expo-file-system";
 import { supabase } from "./supabase";
 
 /**
- * Fallback photo upload to Supabase Storage (bucket: meal-photos), used when
- * the user hasn't connected Google Drive. Returns a public URL.
+ * Upload a meal photo (or avatar) to Supabase Storage (bucket: meal-photos)
+ * and return its public URL.
  */
 export async function uploadMealPhotoToSupabase(
   localUri: string,

@@ -22,7 +22,7 @@ export async function analyzeMeal(localUri: string): Promise<MealPrediction> {
   return normalize(data as MealPrediction);
 }
 
-/** Analyze from an already-hosted image URL (e.g. a Drive/Storage public link). */
+/** Analyze from an already-hosted image URL (e.g. a Supabase Storage public link). */
 export async function analyzeMealFromUrl(
   imageUrl: string
 ): Promise<MealPrediction> {

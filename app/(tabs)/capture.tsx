@@ -28,7 +28,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { analyzeMeal } from "@/lib/mealAnalysis";
-import { uploadMealPhotoToDrive, isDriveConnected } from "@/lib/googleDrive";
 import { uploadMealPhotoToSupabase } from "@/lib/storage";
 import { createLog } from "@/lib/api";
 import { Button } from "@/components/Button";
@@ -119,17 +118,10 @@ export default function Capture() {
     }
     setSaving(true);
     try {
-      // Upload the photo: prefer Google Drive if connected, else Supabase.
+      // Upload the meal photo to Supabase Storage (bucket: meal-photos).
       let photoUrl: string | null = null;
-      let driveFileId: string | null = null;
       try {
-        if (await isDriveConnected()) {
-          const res = await uploadMealPhotoToDrive(photoUri);
-          photoUrl = res.publicUrl;
-          driveFileId = res.fileId;
-        } else {
-          photoUrl = await uploadMealPhotoToSupabase(photoUri, user.id);
-        }
+        photoUrl = await uploadMealPhotoToSupabase(photoUri, user.id);
       } catch (uploadErr) {
         console.warn("[capture] upload failed, saving without photo", uploadErr);
       }
@@ -143,7 +135,6 @@ export default function Capture() {
         fat_g: num(fat),
         meal_type: mealType,
         photo_url: photoUrl,
-        drive_file_id: driveFileId,
         ai_confidence: prediction?.confidence ?? null,
       });
 

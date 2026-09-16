@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,23 +6,16 @@ import {
   ScrollView,
   TextInput,
   Alert,
-  Switch,
-  Pressable,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useFocusEffect, router } from "expo-router";
+import { router } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
-import { updateProfile, getMyLogsForDay } from "@/lib/api";
+import { updateProfile } from "@/lib/api";
 import { uploadMealPhotoToSupabase } from "@/lib/storage";
-import {
-  useGoogleDrive,
-  isDriveConnected,
-  disconnectDrive,
-} from "@/lib/googleDrive";
 import { Avatar } from "@/components/Avatar";
 import { Card } from "@/components/misc";
 import { Button } from "@/components/Button";
@@ -33,18 +26,12 @@ export default function ProfileScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { user, profile, refreshProfile, signOut } = useAuth();
-  const drive = useGoogleDrive();
 
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
   const [bio, setBio] = useState(profile?.bio ?? "");
   const [calGoal, setCalGoal] = useState(String(profile?.daily_calorie_goal ?? 2000));
-  const [driveOn, setDriveOn] = useState(false);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    isDriveConnected().then(setDriveOn);
-  }, [drive.connected]);
 
   useEffect(() => {
     setDisplayName(profile?.display_name ?? "");
@@ -85,15 +72,6 @@ export default function ProfileScreen() {
       await refreshProfile();
     } catch (e: any) {
       Alert.alert("Upload failed", e.message);
-    }
-  };
-
-  const toggleDrive = async (value: boolean) => {
-    if (value) {
-      await drive.connect();
-    } else {
-      await disconnectDrive();
-      setDriveOn(false);
     }
   };
 
@@ -189,27 +167,22 @@ export default function ProfileScreen() {
             </Card>
           </Animated.View>
 
-          {/* integrations */}
+          {/* storage */}
           <Animated.View entering={FadeInDown.delay(200)} style={{ marginTop: spacing.lg }}>
             <Card>
               <View style={styles.integrationRow}>
-                <View style={[styles.intIcon, { backgroundColor: brand.blue + "22" }]}>
-                  <Ionicons name="cloud-outline" size={22} color={brand.blue} />
+                <View style={[styles.intIcon, { backgroundColor: brand.green + "22" }]}>
+                  <Ionicons name="cloud-done-outline" size={22} color={brand.green} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.intTitle, { color: colors.text }]}>
-                    Google Drive
+                    Cloud storage
                   </Text>
                   <Text style={[styles.intSub, { color: colors.textMuted }]}>
-                    {driveOn ? "Meal photos back up to Drive" : "Back up meal photos"}
+                    Meal photos are backed up to Supabase Storage
                   </Text>
                 </View>
-                <Switch
-                  value={driveOn}
-                  onValueChange={toggleDrive}
-                  disabled={!drive.ready}
-                  trackColor={{ true: brand.green }}
-                />
+                <Ionicons name="checkmark-circle" size={22} color={brand.green} />
               </View>
             </Card>
           </Animated.View>

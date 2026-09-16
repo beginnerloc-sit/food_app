@@ -59,11 +59,11 @@ npm i -g supabase                 # if you don't have the CLI
 supabase login
 supabase link --project-ref YOUR_REF
 
-# secrets (never shipped to the app)
+# secret: only the OpenAI key is required (never shipped to the app)
 supabase secrets set OPENAI_API_KEY=sk-...
-# secret key (sb_secret_...) from Project Settings → API Keys — bypasses RLS
-# so send-notification can read any user's push token. (Legacy: service_role key.)
-supabase secrets set SERVICE_ROLE_KEY=sb_secret_...
+# NOTE: send-notification needs a service key to read push tokens, but Supabase
+# auto-injects one (SUPABASE_SERVICE_ROLE_KEY) into every function — so you set
+# nothing. To use the new secret key instead: supabase secrets set SB_SECRET_KEY=sb_secret_...
 
 supabase functions deploy analyze-meal      # meal photo → nutrition
 supabase functions deploy coach-chat        # the "Chef" AI buddy

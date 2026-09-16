@@ -2,8 +2,12 @@
 // Triggered by a Database Webhook on INSERT into public.notifications.
 // Looks up the recipient's Expo push token and delivers a push via Expo.
 //
-// Deploy:  supabase functions deploy send-notification
-// Secret:  supabase secrets set SERVICE_ROLE_KEY=<service-role-key>
+// Deploy:  supabase functions deploy send-notification --no-verify-jwt
+//
+// Auth key: needs a key that can read any user's push token (bypasses RLS).
+//   Supabase AUTO-INJECTS SUPABASE_SERVICE_ROLE_KEY into every function, so
+//   normally you set NOTHING. If you'd rather use the new secret key
+//   (sb_secret_...), set it yourself:  supabase secrets set SB_SECRET_KEY=sb_secret_...
 //
 // Set up the webhook in Supabase Dashboard:
 //   Database → Webhooks → Create
@@ -14,10 +18,13 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SERVICE_ROLE_KEY =
-  Deno.env.get("SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+// Prefer a manually-set new secret key, else the auto-injected service key.
+const SERVICE_KEY =
+  Deno.env.get("SB_SECRET_KEY") ??
+  Deno.env.get("SERVICE_ROLE_KEY") ??
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
 const titleFor: Record<string, string> = {
   new_log: "🍽️ New meal logged",

@@ -17,9 +17,9 @@ Built with **Expo (React Native) · Supabase · OpenAI (gpt-4o-mini)**.
 | 📊 **Tracker** | Animated calorie ring, macro bars, 7-day chart, per-day meal list, streaks. |
 | 🎯 **Set goal** | BMR/TDEE calculator (lose / maintain / gain) computes calorie + macro targets. |
 | 🧑‍🍳 **Talk to Chef** | AI chat buddy that jokes about your meals & plan while sneaking in real advice. |
-| 👥 **Social** | Add friends, like & comment, real-time feed. |
+| 🤖 **Custom AI persona** | Design your own AI by prompt (name + emoji + personality). It auto-comments on your meal posts in character, writes captions, and gives its "take" on any post on demand. Presets included (Chef Gordon, Gym Bro, Nonna…). |
+| 👥 **Social** | Every meal is a post. Add friends, like & comment, real-time feed. |
 | 🔔 **Tracker circle** | Add friends to your circle — they get a push every time you log a meal. |
-| 📰 **Discover** | Meal-prep articles from Spoonacular, filterable by diet. |
 | ☁️ **Cloud storage** | Meal photos are uploaded to Supabase Storage (`meal-photos` bucket). |
 
 Design uses the brand palette: coral `#FF7F50` · yellow `#FFD166` · green `#06D6A0` · blue `#118AB2`.
@@ -60,6 +60,7 @@ supabase secrets set SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY
 
 supabase functions deploy analyze-meal      # meal photo → nutrition
 supabase functions deploy coach-chat        # the "Chef" AI buddy
+supabase functions deploy ai-persona        # the user's custom AI persona
 supabase functions deploy send-notification # Expo push delivery
 ```
 
@@ -76,13 +77,7 @@ Nothing to configure — running [`schema.sql`](supabase/schema.sql) creates the
 public `meal-photos` bucket and its access policies. Meal photos and avatars are
 uploaded straight to Supabase Storage from the app ([`src/lib/storage.ts`](src/lib/storage.ts)).
 
-### 5. Spoonacular (Discover feed)
-
-Get a free key at [spoonacular.com/food-api](https://spoonacular.com/food-api)
-and set `EXPO_PUBLIC_MEALPREP_API_KEY`. *(Without it the Discover tab shows a
-small curated fallback list.)*
-
-### 6. Run
+### 5. Run
 
 ```bash
 npx expo start
@@ -102,14 +97,15 @@ app/                       # expo-router screens (file-based routing)
   log/[id].tsx             # meal detail + comments
   coach.tsx                # AI Chef chat (modal)
   goals.tsx                # goal calculator (modal)
+  ai-persona.tsx           # design your custom AI persona (modal)
 src/
   components/              # Avatar, CalorieRing, LogCard, TabBar, ... (all animated)
   context/AuthContext.tsx  # session + profile + push registration
-  lib/                     # supabase, api, mealAnalysis, storage, coach, goals, notifications
+  lib/                     # supabase, api, mealAnalysis, storage, coach, persona, goals, notifications
   theme/                   # palette + spacing/radius/typography tokens
 supabase/
   schema.sql               # tables, RLS, triggers, storage
-  functions/               # analyze-meal, coach-chat, send-notification (Deno)
+  functions/               # analyze-meal, coach-chat, ai-persona, send-notification (Deno)
 ```
 
 **Why edge functions?** The OpenAI key never touches the client — the app sends

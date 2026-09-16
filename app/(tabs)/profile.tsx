@@ -164,6 +164,18 @@ export default function ProfileScreen() {
                 subtitle="Your witty AI food buddy"
                 onPress={() => router.push("/coach")}
               />
+              <View style={{ height: 1, backgroundColor: colors.border, marginLeft: 64 }} />
+              <MenuRow
+                icon="sparkles-outline"
+                color={brand.blue}
+                title="Your AI persona"
+                subtitle={
+                  profile?.ai_enabled
+                    ? `${profile.ai_emoji} ${profile.ai_name} is active`
+                    : "Design an AI that posts & comments"
+                }
+                onPress={() => router.push("/ai-persona")}
+              />
             </Card>
           </Animated.View>
 

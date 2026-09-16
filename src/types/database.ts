@@ -26,6 +26,11 @@ export interface Profile {
   fat_goal_g: number;
   streak_count: number;
   expo_push_token: string | null;
+  ai_name: string;
+  ai_emoji: string;
+  ai_prompt: string;
+  ai_enabled: boolean;
+  ai_autocomment: boolean;
   created_at: string;
 }
 
@@ -72,6 +77,9 @@ export interface LogComment {
   log_id: string;
   user_id: string;
   body: string;
+  is_ai: boolean;
+  ai_name: string | null;
+  ai_emoji: string | null;
   created_at: string;
 }
 

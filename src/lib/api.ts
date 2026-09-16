@@ -233,6 +233,25 @@ export async function addComment(
   if (error) throw error;
 }
 
+/** Insert a comment authored by the user's AI persona (rendered as the AI). */
+export async function addAIComment(
+  logId: string,
+  ownerId: string,
+  body: string,
+  aiName: string,
+  aiEmoji: string
+): Promise<void> {
+  const { error } = await supabase.from("log_comments").insert({
+    log_id: logId,
+    user_id: ownerId,
+    body,
+    is_ai: true,
+    ai_name: aiName,
+    ai_emoji: aiEmoji,
+  });
+  if (error) throw error;
+}
+
 // ────────────────────────────── Friendships ────────────────────────────────
 
 export async function sendFriendRequest(

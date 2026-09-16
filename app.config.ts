@@ -73,7 +73,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
-    mealPrepApiKey: process.env.EXPO_PUBLIC_MEALPREP_API_KEY,
     eas: {
       projectId: process.env.EAS_PROJECT_ID,
     },

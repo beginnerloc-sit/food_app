@@ -29,7 +29,8 @@ import { router } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { analyzeMeal } from "@/lib/mealAnalysis";
 import { uploadMealPhotoToSupabase } from "@/lib/storage";
-import { createLog } from "@/lib/api";
+import { createLog, addAIComment } from "@/lib/api";
+import { generateCaption, generateComment, personaFromProfile } from "@/lib/persona";
 import { Button } from "@/components/Button";
 import { PressableScale } from "@/components/PressableScale";
 import { useTheme, brand, radius, spacing, macros, shadow } from "@/theme";
@@ -42,7 +43,7 @@ const MEAL_TYPES: MealType[] = ["breakfast", "lunch", "dinner", "snack"];
 export default function Capture() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const cameraRef = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
 
@@ -59,6 +60,28 @@ export default function Capture() {
   const [carbs, setCarbs] = useState("");
   const [fat, setFat] = useState("");
   const [mealType, setMealType] = useState<MealType>("lunch");
+  const [caption, setCaption] = useState("");
+  const [captionLoading, setCaptionLoading] = useState(false);
+
+  const writeCaption = async () => {
+    if (!name.trim()) {
+      Alert.alert("Name your meal first", "I need to know what you ate.");
+      return;
+    }
+    setCaptionLoading(true);
+    try {
+      const text = await generateCaption(
+        personaFromProfile(profile),
+        { meal_name: name, calories: num(cal), serving_size: serving },
+        profile?.display_name ?? profile?.username ?? "me"
+      );
+      setCaption(text);
+    } catch (e: any) {
+      Alert.alert("AI unavailable", e.message ?? "Try again.");
+    } finally {
+      setCaptionLoading(false);
+    }
+  };
 
   const runAnalysis = async (uri: string) => {
     setPhotoUri(uri);
@@ -126,7 +149,7 @@ export default function Capture() {
         console.warn("[capture] upload failed, saving without photo", uploadErr);
       }
 
-      await createLog(user.id, {
+      const log = await createLog(user.id, {
         meal_name: name.trim(),
         serving_size: serving.trim(),
         calories: num(cal),
@@ -136,7 +159,24 @@ export default function Capture() {
         meal_type: mealType,
         photo_url: photoUrl,
         ai_confidence: prediction?.confidence ?? null,
+        notes: caption.trim() || null,
       });
+
+      // If the user's AI persona is on with auto-comment, let it react to the
+      // new post (fire-and-forget — never block the save on it).
+      if (profile?.ai_enabled && profile?.ai_autocomment) {
+        generateComment(
+          personaFromProfile(profile),
+          { meal_name: name.trim(), calories: num(cal), serving_size: serving.trim() },
+          profile.display_name ?? profile.username
+        )
+          .then((text) =>
+            text
+              ? addAIComment(log.id, user.id, text, profile.ai_name, profile.ai_emoji)
+              : null
+          )
+          .catch(() => {});
+      }
 
       reset();
       router.replace("/(tabs)");
@@ -157,6 +197,7 @@ export default function Capture() {
     setProtein("");
     setCarbs("");
     setFat("");
+    setCaption("");
   };
 
   // ── permission gate ──
@@ -282,6 +323,40 @@ export default function Capture() {
                 color={macros.fat}
               />
             </View>
+
+            {/* caption + AI writer */}
+            <View style={styles.captionHeader}>
+              <Text style={[styles.fieldLabel, { color: colors.textMuted, marginTop: 0 }]}>
+                Caption
+              </Text>
+              <PressableScale onPress={writeCaption}>
+                <View style={[styles.aiWriteBtn, { backgroundColor: brand.blue + "18" }]}>
+                  <Ionicons name="sparkles" size={13} color={brand.blue} />
+                  <Text style={[styles.aiWriteText, { color: brand.blue }]}>
+                    {captionLoading
+                      ? "Writing…"
+                      : `Write with ${profile?.ai_emoji ?? "🤖"} ${profile?.ai_name ?? "AI"}`}
+                  </Text>
+                </View>
+              </PressableScale>
+            </View>
+            <TextInput
+              value={caption}
+              onChangeText={setCaption}
+              placeholder="Say something about this meal…"
+              placeholderTextColor={colors.textFaint}
+              multiline
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.surfaceAlt,
+                  borderColor: colors.border,
+                  color: colors.text,
+                  minHeight: 70,
+                  textAlignVertical: "top",
+                },
+              ]}
+            />
           </Animated.View>
         </ScrollView>
 
@@ -593,6 +668,22 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   numField: { width: "47%", flexGrow: 1 },
+  captionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: spacing.lg,
+    marginBottom: 8,
+  },
+  aiWriteBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+  aiWriteText: { fontSize: 12, fontWeight: "700" },
   numLabelRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: spacing.md },
   dot: { width: 8, height: 8, borderRadius: 4 },
   saveBar: {

@@ -47,6 +47,10 @@ export default function RootLayout() {
             name="goals"
             options={{ presentation: "modal", animation: "slide_from_bottom" }}
           />
+          <Stack.Screen
+            name="ai-persona"
+            options={{ presentation: "modal", animation: "slide_from_bottom" }}
+          />
         </Stack>
       </AuthProvider>
     </GestureHandlerRootView>

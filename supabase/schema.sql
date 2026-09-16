@@ -22,6 +22,12 @@ create table if not exists public.profiles (
   fat_goal_g         int  not null default 70,
   streak_count       int  not null default 0,
   expo_push_token    text,
+  -- Custom AI persona the user designs (name, emoji, personality prompt).
+  ai_name            text not null default 'Sidekick',
+  ai_emoji           text not null default '🤖',
+  ai_prompt          text not null default 'You are an upbeat, funny food buddy who cheers me on and cracks jokes about my meals.',
+  ai_enabled         boolean not null default false,
+  ai_autocomment     boolean not null default true,
   created_at         timestamptz not null default now()
 );
 
@@ -89,6 +95,12 @@ create table if not exists public.log_comments (
   log_id     uuid not null references public.food_logs(id) on delete cascade,
   user_id    uuid not null references public.profiles(id) on delete cascade,
   body       text not null,
+  -- When an AI persona wrote the comment, is_ai is true and we render the
+  -- persona's name/emoji instead of the human owner. user_id stays the owner
+  -- (the account that triggered it) so RLS still applies.
+  is_ai      boolean not null default false,
+  ai_name    text,
+  ai_emoji   text,
   created_at timestamptz not null default now()
 );
 

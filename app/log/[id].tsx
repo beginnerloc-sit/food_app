@@ -21,8 +21,10 @@ import {
   getLog,
   getComments,
   addComment,
+  addAIComment,
   toggleLike,
 } from "@/lib/api";
+import { generateComment, personaFromProfile } from "@/lib/persona";
 import { Avatar } from "@/components/Avatar";
 import { MacroChips } from "@/components/MacroChips";
 import { LikeButton } from "@/components/LikeButton";
@@ -34,13 +36,39 @@ export default function LogDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const [log, setLog] = useState<FoodLogWithAuthor | null>(null);
   const [comments, setComments] = useState<CommentWithAuthor[]>([]);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [aiThinking, setAiThinking] = useState(false);
+
+  const askAI = async () => {
+    if (!user || !log || !profile) return;
+    setAiThinking(true);
+    try {
+      const reply = await generateComment(
+        personaFromProfile(profile),
+        {
+          meal_name: log.meal_name,
+          calories: log.calories,
+          serving_size: log.serving_size,
+        },
+        log.author.display_name || log.author.username
+      );
+      if (reply) {
+        await addAIComment(log.id, user.id, reply, profile.ai_name, profile.ai_emoji);
+        const c = await getComments(log.id);
+        setComments(c);
+      }
+    } catch {
+      /* silent */
+    } finally {
+      setAiThinking(false);
+    }
+  };
 
   const load = useCallback(async () => {
     if (!id || !user) return;
@@ -160,31 +188,58 @@ export default function LogDetail() {
           ) : null}
 
           {/* comments */}
-          <Text style={[styles.commentsTitle, { color: colors.text }]}>
-            Comments {comments.length > 0 ? `(${comments.length})` : ""}
-          </Text>
+          <View style={styles.commentsHeader}>
+            <Text style={[styles.commentsTitle, { color: colors.text }]}>
+              Comments {comments.length > 0 ? `(${comments.length})` : ""}
+            </Text>
+            {profile?.ai_enabled && (
+              <PressableScale onPress={askAI} disabled={aiThinking}>
+                <View style={[styles.aiTakeBtn, { backgroundColor: brand.blue + "18" }]}>
+                  <Ionicons name="sparkles" size={13} color={brand.blue} />
+                  <Text style={[styles.aiTakeText, { color: brand.blue }]}>
+                    {aiThinking ? "Thinking…" : `${profile.ai_emoji} ${profile.ai_name}'s take`}
+                  </Text>
+                </View>
+              </PressableScale>
+            )}
+          </View>
           {comments.length === 0 ? (
             <Text style={[styles.noComments, { color: colors.textFaint }]}>
               Be the first to comment.
             </Text>
           ) : (
             comments.map((c, i) => {
-              const cn = c.author.display_name || c.author.username;
+              const cn = c.is_ai
+                ? c.ai_name || "AI"
+                : c.author.display_name || c.author.username;
               return (
                 <Animated.View
                   key={c.id}
                   entering={FadeInDown.delay(i * 40)}
                   style={styles.commentRow}
                 >
-                  <Avatar uri={c.author.avatar_url} name={cn} size={36} />
+                  {c.is_ai ? (
+                    <View style={[styles.aiAvatar, { backgroundColor: brand.blue + "22" }]}>
+                      <Text style={{ fontSize: 18 }}>{c.ai_emoji || "🤖"}</Text>
+                    </View>
+                  ) : (
+                    <Avatar uri={c.author.avatar_url} name={cn} size={36} />
+                  )}
                   <View
                     style={[
                       styles.bubble,
-                      { backgroundColor: colors.surfaceAlt },
+                      {
+                        backgroundColor: c.is_ai
+                          ? brand.blue + "14"
+                          : colors.surfaceAlt,
+                      },
                     ]}
                   >
                     <Text style={[styles.commentName, { color: colors.text }]}>
                       {cn}
+                      {c.is_ai && (
+                        <Text style={{ color: brand.blue, fontWeight: "700" }}> · AI</Text>
+                      )}
                     </Text>
                     <Text style={[styles.commentBody, { color: colors.text }]}>
                       {c.body}
@@ -273,7 +328,29 @@ const styles = StyleSheet.create({
   meal: { fontSize: 26, fontWeight: "800", marginTop: spacing.lg },
   serving: { fontSize: 14, marginTop: 4, textTransform: "capitalize" },
   notes: { fontSize: 14, marginTop: spacing.lg, lineHeight: 20 },
-  commentsTitle: { fontSize: 17, fontWeight: "800", marginTop: spacing.xl },
+  commentsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: spacing.xl,
+  },
+  commentsTitle: { fontSize: 17, fontWeight: "800" },
+  aiTakeBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+  },
+  aiTakeText: { fontSize: 12, fontWeight: "700" },
+  aiAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   noComments: { fontSize: 14, marginTop: spacing.md },
   commentRow: { flexDirection: "row", gap: spacing.md, marginTop: spacing.lg },
   bubble: { flex: 1, padding: spacing.md, borderRadius: radius.md },

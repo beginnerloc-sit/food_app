@@ -12,16 +12,3 @@ export interface MealPrediction {
   confidence: number; // 0..1
   items: string[]; // detected components, e.g. ["grilled chicken", "rice"]
 }
-
-/** A Spoonacular recipe/article shown in the news feed. */
-export interface MealPrepArticle {
-  id: number;
-  title: string;
-  image: string;
-  readyInMinutes?: number;
-  servings?: number;
-  calories?: number;
-  sourceUrl?: string;
-  diets?: string[];
-  summary?: string;
-}

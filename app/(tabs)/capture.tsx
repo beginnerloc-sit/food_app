@@ -33,7 +33,7 @@ import { createLog, addAIComment } from "@/lib/api";
 import { generateCaption, generateComment, personaFromProfile } from "@/lib/persona";
 import { Button } from "@/components/Button";
 import { PressableScale } from "@/components/PressableScale";
-import { useTheme, brand, radius, spacing, macros, shadow } from "@/theme";
+import { useTheme, brand, radius, spacing, macros, shadow, absoluteFill } from "@/theme";
 import { useI18n } from "@/i18n";
 import type { MealPrediction } from "@/types/meal";
 import type { MealType } from "@/types/database";
@@ -130,7 +130,7 @@ export default function Capture() {
 
   const pickPhoto = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       quality: 0.6,
     });
     if (!result.canceled && result.assets[0]) runAnalysis(result.assets[0].uri);
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   frame: {
-    ...StyleSheet.absoluteFillObject,
+    ...absoluteFill,
     margin: 50,
     marginTop: 120,
     marginBottom: 180,
@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
     gap: 12,
   },
-  analyzeOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "#000A" },
+  analyzeOverlay: { ...absoluteFill, backgroundColor: "#000A" },
   pulse: {
     width: 100,
     height: 100,

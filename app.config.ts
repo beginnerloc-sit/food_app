@@ -15,11 +15,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: "./assets/icon.png",
   scheme: "platepal",
   userInterfaceStyle: "automatic",
-  splash: {
-    image: "./assets/splash-icon.png",
-    resizeMode: "contain",
-    backgroundColor: "#FF7F50",
-  },
   assetBundlePatterns: ["**/*"],
   ios: {
     supportsTablet: true,
@@ -51,6 +46,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-asset",
     "expo-font",
     "expo-localization",
+    [
+      "expo-splash-screen",
+      {
+        image: "./assets/splash-icon.png",
+        resizeMode: "contain",
+        backgroundColor: "#FF7F50",
+      },
+    ],
     [
       "expo-camera",
       {

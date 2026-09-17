@@ -37,6 +37,15 @@ export const font = {
   },
 } as const;
 
+/** Replacement for the removed StyleSheet.absoluteFillObject. */
+export const absoluteFill = {
+  position: "absolute" as const,
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+};
+
 export const shadow = (elevation = 1) => ({
   shadowColor: "#12222B",
   shadowOffset: { width: 0, height: elevation * 2 },

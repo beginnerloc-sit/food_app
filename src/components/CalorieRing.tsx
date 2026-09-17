@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import Svg, { Circle, G } from "react-native-svg";
-import { useTheme } from "@/theme";
+import { useTheme, absoluteFill } from "@/theme";
 import { useI18n } from "@/i18n";
 
 interface Props {
@@ -74,7 +74,7 @@ export function CalorieRing({
 
 const styles = StyleSheet.create({
   center: {
-    ...StyleSheet.absoluteFillObject,
+    ...absoluteFill,
     alignItems: "center",
     justifyContent: "center",
   },

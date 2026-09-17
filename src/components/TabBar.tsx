@@ -9,8 +9,22 @@ import Animated, {
 } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useTheme, brand, shadow } from "@/theme";
+
+// Minimal shape of the props expo-router's <Tabs tabBar> passes, so we don't
+// depend on @react-navigation/bottom-tabs types directly.
+type TabRoute = { key: string; name: string };
+type BottomTabBarProps = {
+  state: { index: number; routes: TabRoute[] };
+  navigation: {
+    emit: (event: {
+      type: "tabPress";
+      target: string;
+      canPreventDefault: boolean;
+    }) => { defaultPrevented: boolean };
+    navigate: (name: string) => void;
+  };
+};
 import { useI18n } from "@/i18n";
 
 const ICONS: Record<string, { on: keyof typeof Ionicons.glyphMap; off: keyof typeof Ionicons.glyphMap }> = {

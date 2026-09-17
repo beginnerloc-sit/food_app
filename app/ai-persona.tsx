@@ -36,6 +36,9 @@ export default function AiPersona() {
   const [name, setName] = useState(profile?.ai_name ?? "Sidekick");
   const [emoji, setEmoji] = useState(profile?.ai_emoji ?? "🤖");
   const [prompt, setPrompt] = useState(profile?.ai_prompt ?? "");
+  const [custom, setCustom] = useState(
+    !PERSONA_PRESETS.some((p) => p.prompt === profile?.ai_prompt)
+  );
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [previewing, setPreviewing] = useState(false);
@@ -44,6 +47,7 @@ export default function AiPersona() {
     setName(p.name);
     setEmoji(p.emoji);
     setPrompt(p.prompt);
+    setCustom(false);
     setPreview(null);
   };
 
@@ -132,40 +136,70 @@ export default function AiPersona() {
           />
         </Card>
 
-        {/* presets */}
+        {/* character presets */}
         <Text style={[styles.label, { color: colors.textMuted }]}>
           {t("persona.preset")}
         </Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: 8, paddingRight: spacing.lg }}
-        >
-          {PERSONA_PRESETS.map((p) => (
-            <PressableScale key={p.name} onPress={() => applyPreset(p)}>
-              <View
-                style={[
-                  styles.preset,
-                  {
-                    backgroundColor:
-                      name === p.name ? colors.primary : colors.surfaceAlt,
-                    borderColor: name === p.name ? colors.primary : colors.border,
-                  },
-                ]}
-              >
-                <Text style={{ fontSize: 22 }}>{p.emoji}</Text>
-                <Text
+        <View style={styles.presetGrid}>
+          {PERSONA_PRESETS.map((p) => {
+            const active = !custom && prompt === p.prompt;
+            return (
+              <PressableScale key={p.name} onPress={() => applyPreset(p)} style={styles.presetWrap}>
+                <View
                   style={[
-                    styles.presetName,
-                    { color: name === p.name ? "#fff" : colors.text },
+                    styles.preset,
+                    {
+                      backgroundColor: active ? colors.primary : colors.surfaceAlt,
+                      borderColor: active ? colors.primary : colors.border,
+                    },
                   ]}
                 >
-                  {p.name}
-                </Text>
-              </View>
-            </PressableScale>
-          ))}
-        </ScrollView>
+                  <Text style={{ fontSize: 30 }}>{p.emoji}</Text>
+                  <Text
+                    style={[styles.presetName, { color: active ? "#fff" : colors.text }]}
+                  >
+                    {p.name}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.presetBlurb,
+                      { color: active ? "rgba(255,255,255,0.9)" : colors.textMuted },
+                    ]}
+                    numberOfLines={2}
+                  >
+                    {p.blurb}
+                  </Text>
+                </View>
+              </PressableScale>
+            );
+          })}
+          {/* custom */}
+          <PressableScale onPress={() => setCustom(true)} style={styles.presetWrap}>
+            <View
+              style={[
+                styles.preset,
+                {
+                  backgroundColor: custom ? colors.primary : colors.surfaceAlt,
+                  borderColor: custom ? colors.primary : colors.border,
+                },
+              ]}
+            >
+              <Text style={{ fontSize: 30 }}>✍️</Text>
+              <Text style={[styles.presetName, { color: custom ? "#fff" : colors.text }]}>
+                {t("persona.custom")}
+              </Text>
+              <Text
+                style={[
+                  styles.presetBlurb,
+                  { color: custom ? "rgba(255,255,255,0.9)" : colors.textMuted },
+                ]}
+                numberOfLines={2}
+              >
+                {t("persona.customBlurb")}
+              </Text>
+            </View>
+          </PressableScale>
+        </View>
 
         {/* name + emoji */}
         <Text style={[styles.label, { color: colors.textMuted }]}>{t("persona.nameIcon")}</Text>
@@ -203,7 +237,9 @@ export default function AiPersona() {
           ))}
         </ScrollView>
 
-        {/* prompt */}
+        {/* personality: only editable in custom mode; presets stay hidden */}
+        {custom ? (
+          <>
         <Text style={[styles.label, { color: colors.textMuted }]}>
           {t("persona.personality")}
         </Text>
@@ -219,6 +255,8 @@ export default function AiPersona() {
             { backgroundColor: colors.surfaceAlt, borderColor: colors.border, color: colors.text },
           ]}
         />
+          </>
+        ) : null}
 
         {/* preview */}
         <PressableScale onPress={tryPreview}>
@@ -314,15 +352,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: spacing.xl,
   },
+  presetGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+  presetWrap: { width: "31%", flexGrow: 1 },
   preset: {
     alignItems: "center",
-    gap: 6,
-    width: 92,
+    gap: 5,
     paddingVertical: spacing.md,
+    paddingHorizontal: 8,
     borderRadius: radius.md,
     borderWidth: 1,
+    minHeight: 118,
+    justifyContent: "center",
   },
-  presetName: { fontSize: 12, fontWeight: "700", textAlign: "center" },
+  presetName: { fontSize: 13, fontWeight: "800", textAlign: "center" },
+  presetBlurb: { fontSize: 10.5, textAlign: "center", lineHeight: 14 },
   input: {
     borderWidth: 1,
     borderRadius: radius.md,

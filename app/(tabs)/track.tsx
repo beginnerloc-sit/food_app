@@ -23,6 +23,7 @@ import {
   deleteLog,
   DailyTotals,
 } from "@/lib/api";
+import { Plate3D } from "@/components/Plate3D";
 import { CalorieRing } from "@/components/CalorieRing";
 import { MacroBars } from "@/components/MacroBars";
 import { WeeklyChart } from "@/components/WeeklyChart";
@@ -94,9 +95,12 @@ export default function Track() {
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       {/* top bar with a fixed, non-overlapping Ask Chef button */}
       <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
-        <Text style={[styles.screenTitle, { color: colors.text }]}>
-          {t("tab.track")}
-        </Text>
+        <View style={styles.titleRow}>
+          <Plate3D size={52} />
+          <Text style={[styles.screenTitle, { color: colors.text }]}>
+            {t("tab.track")}
+          </Text>
+        </View>
         <PressableScale onPress={() => router.push("/coach")}>
           <LinearGradient
             colors={[brand.green, brand.blue]}
@@ -292,6 +296,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.sm,
   },
+  titleRow: { flexDirection: "row", alignItems: "center", gap: 4 },
   screenTitle: { fontSize: 26, fontWeight: "800", letterSpacing: -0.5 },
   chefChip: {
     flexDirection: "row",

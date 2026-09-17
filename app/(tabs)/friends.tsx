@@ -11,7 +11,7 @@ import {
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Animated, { FadeIn, FadeInDown, LinearTransition } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, router } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import {
   getFriends,
@@ -25,7 +25,7 @@ import {
 } from "@/lib/api";
 import { Avatar } from "@/components/Avatar";
 import { PressableScale } from "@/components/PressableScale";
-import { SectionTitle, EmptyState } from "@/components/misc";
+import { SectionTitle, EmptyState, ScreenHeader } from "@/components/misc";
 import { useTheme, spacing, radius, brand } from "@/theme";
 import { useI18n } from "@/i18n";
 import type { Profile } from "@/types/database";
@@ -101,7 +101,7 @@ export default function Friends() {
         contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 120 }}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={[styles.title, { color: colors.text }]}>{t("friends.title")}</Text>
+        <ScreenHeader title={t("friends.title")} />
 
         {/* search */}
         <View
@@ -198,6 +198,7 @@ export default function Friends() {
               <Animated.View key={edge.friendshipId} entering={FadeInDown} layout={LinearTransition}>
                 <UserRow
                   profile={edge.profile}
+                  onPress={() => router.push(`/user/${edge.profile.id}`)}
                   trailing={
                     <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
                       <BellToggle
@@ -225,14 +226,16 @@ export default function Friends() {
 function UserRow({
   profile,
   trailing,
+  onPress,
 }: {
   profile: Profile;
   trailing?: React.ReactNode;
+  onPress?: () => void;
 }) {
   const { colors } = useTheme();
   const name = profile.display_name || profile.username;
-  return (
-    <View style={[styles.row, { borderColor: colors.border }]}>
+  const inner = (
+    <>
       <Avatar uri={profile.avatar_url} name={name} size={46} />
       <View style={{ flex: 1 }}>
         <Text style={[styles.name, { color: colors.text }]}>{name}</Text>
@@ -241,8 +244,16 @@ function UserRow({
         </Text>
       </View>
       {trailing}
-    </View>
+    </>
   );
+  if (onPress) {
+    return (
+      <PressableScale onPress={onPress} style={[styles.row, { borderColor: colors.border }]}>
+        {inner}
+      </PressableScale>
+    );
+  }
+  return <View style={[styles.row, { borderColor: colors.border }]}>{inner}</View>;
 }
 
 function BellToggle({ active, onPress }: { active: boolean; onPress: () => void }) {

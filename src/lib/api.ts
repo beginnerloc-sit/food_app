@@ -157,6 +157,45 @@ export async function getWeeklyCalories(
   return Object.entries(buckets).map(([day, calories]) => ({ day, calories }));
 }
 
+// ─────────────────────────── Friend wall / timeline ────────────────────────
+
+export type WallItem = FoodLogWithAuthor & { comments: CommentWithAuthor[] };
+
+/** A friend's meal timeline with each meal's comments (incl. AI personas). */
+export async function getUserWall(
+  userId: string,
+  viewerId: string,
+  limit = 50
+): Promise<WallItem[]> {
+  const { data, error } = await supabase
+    .from("food_logs")
+    .select(
+      `*, author:profiles!food_logs_user_id_fkey(${authorCols}),
+       log_likes(user_id),
+       log_comments(*, author:profiles!log_comments_user_id_fkey(${authorCols}))`
+    )
+    .eq("user_id", userId)
+    .order("logged_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+
+  return (data ?? []).map((row: any) => {
+    const likes = row.log_likes ?? [];
+    const comments = (row.log_comments ?? []).sort(
+      (a: any, b: any) =>
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+    return {
+      ...row,
+      author: row.author,
+      like_count: likes.length,
+      comment_count: comments.length,
+      liked_by_me: likes.some((l: any) => l.user_id === viewerId),
+      comments,
+    } as WallItem;
+  });
+}
+
 // ──────────────────────────────── Feed ─────────────────────────────────────
 
 export async function getFeed(

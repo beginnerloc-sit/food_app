@@ -58,6 +58,7 @@ export default function RootLayout() {
             name="edit-log/[id]"
             options={{ presentation: "modal", animation: "slide_from_bottom" }}
           />
+          <Stack.Screen name="user/[id]" options={{ animation: "slide_from_right" }} />
         </Stack>
       </AuthProvider>
       </I18nProvider>

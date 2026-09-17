@@ -64,16 +64,21 @@ export function LogCard({ log, index = 0, isMe, onToggleLike }: Props) {
             colors={["rgba(0,0,0,0.55)", "rgba(0,0,0,0)"]}
             style={styles.topScrim}
           >
-            <Avatar uri={log.author.avatar_url} name={name} size={34} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.author} numberOfLines={1}>
-                {isMe ? t("common.you") : name}
-              </Text>
-              <Text style={styles.time}>
-                {t(`meal.${log.meal_type}`)} ·{" "}
-                {formatDistanceToNow(new Date(log.logged_at), { addSuffix: true })}
-              </Text>
-            </View>
+            <PressableScale
+              onPress={() => router.push(`/user/${log.user_id}`)}
+              style={styles.authorTap}
+            >
+              <Avatar uri={log.author.avatar_url} name={name} size={34} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.author} numberOfLines={1}>
+                  {isMe ? t("common.you") : name}
+                </Text>
+                <Text style={styles.time}>
+                  {t(`meal.${log.meal_type}`)} ·{" "}
+                  {formatDistanceToNow(new Date(log.logged_at), { addSuffix: true })}
+                </Text>
+              </View>
+            </PressableScale>
             {log.ai_confidence != null && (
               <View style={styles.aiBadge}>
                 <Ionicons name="sparkles" size={11} color="#fff" />
@@ -140,6 +145,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,
   },
+  authorTap: { flexDirection: "row", alignItems: "center", gap: spacing.sm, flex: 1 },
   author: { color: "#fff", fontSize: 14, fontWeight: "700" },
   time: { color: "rgba(255,255,255,0.85)", fontSize: 12, marginTop: 1, textTransform: "capitalize" },
   aiBadge: {

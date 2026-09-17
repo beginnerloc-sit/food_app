@@ -19,12 +19,14 @@ const SERVICE_KEY =
 
 const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
-const GUARDRAILS = `You are an AI persona replying to a comment on your owner's
-meal post, on their behalf, in character. Rules that always win:
-- Reply directly to what the commenter said. 1 to 2 sentences.
+const GUARDRAILS = `You are an AI persona in the comment thread of a meal post,
+acting on your owner's behalf, in character. You are given the conversation so
+far. Decide naturally whether to reply to a specific comment (reference the
+person) or just add your own remark about the meal. Rules that always win:
+- 1 to 2 sentences. Don't repeat what's already been said.
 - Playful, never cruel, no medical advice. 0-2 emoji if it fits.
-- Output ONLY the reply text.
-- Reply in the same language the persona would naturally use (Vietnamese personas reply in Vietnamese; otherwise match the commenter's language).`;
+- Output ONLY the comment text (no name prefix).
+- Reply in the language the persona would naturally use (Vietnamese personas reply in Vietnamese; otherwise match the thread's language).`;
 
 const MAX_RESPONDERS = 3;
 const PROFILE_COLS = "id, ai_name, ai_emoji, ai_prompt, ai_enabled, ai_autocomment";
@@ -68,22 +70,17 @@ serve(async (req) => {
       .eq("ai_autocomment", true);
     if (!profiles || profiles.length === 0) return ok("no active personas");
 
-    const { data: commenter } = await admin
-      .from("profiles")
-      .select("display_name, username")
-      .eq("id", c.user_id)
-      .single();
-    const who = commenter?.display_name || commenter?.username || "someone";
     const mealDesc = [log.meal_name, log.calories && `${log.calories} cal`]
       .filter(Boolean)
       .join(", ");
+    const thread = await buildThread(log.id);
 
     let replies = 0;
     let firstName = "";
     let firstEmoji = "";
     for (const p of profiles) {
       try {
-        const reply = await generate(p, who, c.body, mealDesc);
+        const reply = await generate(p, mealDesc, thread);
         if (reply) {
           await admin.from("log_comments").insert({
             log_id: log.id,
@@ -124,11 +121,30 @@ serve(async (req) => {
   }
 });
 
+// Format the post's comment thread as "Name: text" lines (AI comments labeled).
+async function buildThread(logId: string): Promise<string> {
+  const { data } = await admin
+    .from("log_comments")
+    .select(
+      `body, is_ai, ai_name, created_at, author:profiles!log_comments_user_id_fkey(display_name, username)`
+    )
+    .eq("log_id", logId)
+    .order("created_at", { ascending: true })
+    .limit(20);
+  return (data ?? [])
+    .map((c: any) => {
+      const name = c.is_ai
+        ? `${c.ai_name} (AI)`
+        : c.author?.display_name || c.author?.username || "someone";
+      return `${name}: ${c.body}`;
+    })
+    .join("\n");
+}
+
 async function generate(
-  owner: any,
-  who: string,
-  commentBody: string,
-  mealDesc: string
+  persona: any,
+  mealDesc: string,
+  thread: string
 ): Promise<string> {
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -139,13 +155,13 @@ async function generate(
     body: JSON.stringify({
       model: OPENAI_MODEL,
       temperature: 1.0,
-      max_tokens: 120,
+      max_tokens: 140,
       messages: [
         { role: "system", content: GUARDRAILS },
-        { role: "system", content: `PERSONA (${owner.ai_name}): ${owner.ai_prompt}` },
+        { role: "system", content: `PERSONA (${persona.ai_name}): ${persona.ai_prompt}` },
         {
           role: "user",
-          content: `On your post (${mealDesc}), ${who} commented: "${commentBody}". Reply to them.`,
+          content: `Meal: ${mealDesc}\n\nConversation so far:\n${thread}\n\nAdd your comment as ${persona.ai_name}.`,
         },
       ],
     }),

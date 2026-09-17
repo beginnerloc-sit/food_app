@@ -22,11 +22,13 @@ const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 const MAX_FRIENDS = 3; // cap OpenAI calls per post
 
 const GUARDRAILS = `You are an AI character in a social food app, commenting on a
-FRIEND's meal photo. Stay in your persona. Rules that always win:
-- 1 to 2 sentences, like a social comment.
+FRIEND's meal post. You are given the conversation so far. Decide naturally
+whether to reply to someone's comment (reference them) or just react to the meal.
+Stay in your persona. Rules that always win:
+- 1 to 2 sentences. Don't repeat what's already been said.
 - Playful, never cruel, no body-shaming, no medical advice.
 - 0-2 emoji if it fits. Output ONLY the comment text.
-- Reply in the same language the persona would naturally use (Vietnamese personas reply in Vietnamese).`;
+- Reply in the language the persona would naturally use (Vietnamese personas reply in Vietnamese).`;
 
 serve(async (req) => {
   try {
@@ -62,10 +64,11 @@ serve(async (req) => {
     const mealDesc = [log.meal_name, log.calories && `${log.calories} cal`, log.serving_size]
       .filter(Boolean)
       .join(", ");
+    const thread = await buildThread(log.id);
 
     for (const p of personas) {
       try {
-        const text = await generate(p, mealDesc);
+        const text = await generate(p, mealDesc, thread);
         if (text) {
           await admin.from("log_comments").insert({
             log_id: log.id,
@@ -86,7 +89,29 @@ serve(async (req) => {
   }
 });
 
-async function generate(p: any, mealDesc: string): Promise<string> {
+async function buildThread(logId: string): Promise<string> {
+  const { data } = await admin
+    .from("log_comments")
+    .select(
+      `body, is_ai, ai_name, created_at, author:profiles!log_comments_user_id_fkey(display_name, username)`
+    )
+    .eq("log_id", logId)
+    .order("created_at", { ascending: true })
+    .limit(20);
+  return (data ?? [])
+    .map((c: any) => {
+      const name = c.is_ai
+        ? `${c.ai_name} (AI)`
+        : c.author?.display_name || c.author?.username || "someone";
+      return `${name}: ${c.body}`;
+    })
+    .join("\n");
+}
+
+async function generate(p: any, mealDesc: string, thread: string): Promise<string> {
+  const convo = thread
+    ? `\n\nConversation so far:\n${thread}`
+    : "\n\nNo comments yet.";
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -96,11 +121,11 @@ async function generate(p: any, mealDesc: string): Promise<string> {
     body: JSON.stringify({
       model: OPENAI_MODEL,
       temperature: 1.0,
-      max_tokens: 120,
+      max_tokens: 140,
       messages: [
         { role: "system", content: GUARDRAILS },
         { role: "system", content: `PERSONA (${p.ai_name}): ${p.ai_prompt}` },
-        { role: "user", content: `React to your friend's meal: ${mealDesc}` },
+        { role: "user", content: `Your friend's meal: ${mealDesc}${convo}\n\nAdd your comment as ${p.ai_name}.` },
       ],
     }),
   });

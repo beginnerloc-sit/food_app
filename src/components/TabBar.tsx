@@ -47,6 +47,9 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { t } = useI18n();
 
+  // Full-screen camera: hide the tab bar on the capture route.
+  if (state.routes[state.index]?.name === "capture") return null;
+
   // Tabs to render, excluding hidden routes (capture, notifications).
   const visible = state.routes.filter(
     (r) => r.name === "index" || r.name === "track" || r.name === "friends" || r.name === "profile"

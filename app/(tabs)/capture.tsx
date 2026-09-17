@@ -210,19 +210,27 @@ export default function Capture() {
   if (!permission.granted) {
     return (
       <View style={[styles.permWrap, { backgroundColor: colors.background }]}>
-        <Ionicons name="camera" size={60} color={colors.primary} />
-        <Text style={[styles.permTitle, { color: colors.text }]}>
-          {t("capture.permTitle")}
-        </Text>
-        <Text style={[styles.permSub, { color: colors.textMuted }]}>
-          {t("capture.permSub")}
-        </Text>
-        <Button label={t("capture.grant")} onPress={requestPermission} fullWidth={false} />
-        <Pressable onPress={pickPhoto} style={{ marginTop: 16 }}>
-          <Text style={{ color: colors.primary, fontWeight: "600" }}>
-            {t("capture.pickLibrary")}
+        <View style={styles.permInner}>
+          <View style={[styles.permBadge, { backgroundColor: colors.primary + "1F" }]}>
+            <Ionicons name="camera" size={44} color={colors.primary} />
+          </View>
+          <Text style={[styles.permTitle, { color: colors.text }]}>
+            {t("capture.permTitle")}
           </Text>
-        </Pressable>
+          <Text style={[styles.permSub, { color: colors.textMuted }]}>
+            {t("capture.permSub")}
+          </Text>
+          <Button
+            label={t("capture.grant")}
+            onPress={requestPermission}
+            style={{ marginTop: spacing.md }}
+          />
+          <Pressable onPress={pickPhoto} style={{ marginTop: spacing.lg }}>
+            <Text style={{ color: colors.primary, fontWeight: "600", fontSize: 15 }}>
+              {t("capture.pickLibrary")}
+            </Text>
+          </Pressable>
+        </View>
       </View>
     );
   }
@@ -410,8 +418,12 @@ export default function Capture() {
   return (
     <View style={{ flex: 1, backgroundColor: "#000" }}>
       <CameraView ref={cameraRef} style={{ flex: 1 }} facing="back">
-        <View style={[styles.camTop, { paddingTop: insets.top + 8 }]}>
+        <View style={[styles.camTopBar, { paddingTop: insets.top + 8 }]}>
+          <Pressable onPress={() => router.push("/(tabs)")} style={styles.camClose}>
+            <Ionicons name="close" size={24} color="#fff" />
+          </Pressable>
           <Text style={styles.camHint}>{t("capture.point")}</Text>
+          <View style={{ width: 40 }} />
         </View>
         {/* framing guide */}
         <View style={styles.frame} pointerEvents="none">
@@ -421,7 +433,7 @@ export default function Capture() {
           <View style={[styles.corner, styles.br]} />
         </View>
 
-        <View style={[styles.camControls, { paddingBottom: insets.bottom + 24 }]}>
+        <View style={[styles.camControls, { paddingBottom: insets.bottom + 36 }]}>
           <PressableScale onPress={pickPhoto} style={styles.sideBtn}>
             <Ionicons name="images" size={26} color="#fff" />
           </PressableScale>
@@ -539,12 +551,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: spacing.xl,
-    gap: 14,
   },
-  permTitle: { fontSize: 22, fontWeight: "800" },
-  permSub: { fontSize: 15, textAlign: "center", marginBottom: 10, lineHeight: 21 },
+  permInner: { width: "100%", maxWidth: 340, alignItems: "center", alignSelf: "center" },
+  permBadge: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.lg,
+  },
+  permTitle: { fontSize: 24, fontWeight: "800", textAlign: "center" },
+  permSub: {
+    fontSize: 15,
+    textAlign: "center",
+    marginTop: 8,
+    marginBottom: spacing.md,
+    lineHeight: 21,
+  },
 
-  camTop: { alignItems: "center" },
+  camTopBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.lg,
+  },
+  camClose: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#0006",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   camHint: {
     color: "#fff",
     fontSize: 15,

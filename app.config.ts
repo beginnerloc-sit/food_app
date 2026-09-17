@@ -32,7 +32,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: "com.beginnerloc.platepal",
     adaptiveIcon: {
       foregroundImage: "./assets/adaptive-icon.png",
-      backgroundColor: "#FF7F50",
+      backgroundColor: "#C77B58",
     },
     permissions: ["CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"],
   },
@@ -51,7 +51,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         image: "./assets/splash-icon.png",
         resizeMode: "contain",
-        backgroundColor: "#FF7F50",
+        backgroundColor: "#C77B58",
       },
     ],
     [
@@ -70,7 +70,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "expo-notifications",
       {
         icon: "./assets/notification-icon.png",
-        color: "#FF7F50",
+        color: "#C77B58",
       },
     ],
   ],

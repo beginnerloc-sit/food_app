@@ -16,7 +16,7 @@ import type { NotificationWithActor, NotificationType } from "@/types/database";
 
 const ICON: Record<NotificationType, { icon: keyof typeof Ionicons.glyphMap; color: string }> = {
   new_log: { icon: "restaurant", color: brand.coral },
-  like: { icon: "heart", color: "#EF476F" },
+  like: { icon: "heart", color: "#B0574F" },
   comment: { icon: "chatbubble", color: brand.blue },
   friend_request: { icon: "person-add", color: brand.yellow },
   friend_accepted: { icon: "checkmark-circle", color: brand.green },

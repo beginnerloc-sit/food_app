@@ -1,21 +1,23 @@
 /**
- * PlatePal palette — built from the four brand colors.
+ * PlatePal palette — muted Nordic tones. Calm, natural, low-saturation.
+ * The `brand` keys keep their names (coral/yellow/green/blue) so existing
+ * screens pick up the new look without edits, but the values are Nordic:
  *
- *   Coral   #FF7F50  rgb(255,127,80)   → primary / calories / CTAs
- *   Yellow  #FFD166  rgb(255,209,102)  → highlights, streaks, carbs
- *   Green   #06D6A0  rgb(6,214,160)    → success, protein, "on track"
- *   Blue    #118AB2  rgb(17,138,178)   → info, links, fats, brand chrome
+ *   coral  → clay     #C77B58  (muted terracotta; calories / primary accent)
+ *   yellow → wheat    #D9B26A  (muted mustard; carbs / streaks)
+ *   green  → sage     #7C9885  (muted sage; protein / success)
+ *   blue   → fjord    #6E8CA0  (dusty blue; fats / info)
  */
 
 export const brand = {
-  coral: "#FF7F50",
-  coralSoft: "#FFE4D8",
-  yellow: "#FFD166",
-  yellowSoft: "#FFF3D6",
-  green: "#06D6A0",
-  greenSoft: "#D3F8EC",
-  blue: "#118AB2",
-  blueSoft: "#D2ECF3",
+  coral: "#C77B58",
+  coralSoft: "#EEDDD3",
+  yellow: "#D9B26A",
+  yellowSoft: "#F0E6D2",
+  green: "#7C9885",
+  greenSoft: "#DDE6DE",
+  blue: "#6E8CA0",
+  blueSoft: "#DCE4EA",
 } as const;
 
 /** Macro colors — used consistently across charts, rings and chips. */
@@ -57,47 +59,49 @@ export interface ThemeColors {
 }
 
 const palette: { light: ThemeColors; dark: ThemeColors } = {
+  // Light: warm stone/fog base, soft edges, lots of whitespace.
   light: {
-    background: "#FFFFFF",
-    surface: "#FFFFFF",
-    surfaceAlt: "#F6F8FA",
-    card: "#FFFFFF",
-    border: "#ECEFF3",
-    text: "#12222B",
-    textMuted: "#5C6B73",
-    textFaint: "#9AA7AE",
+    background: "#F4F3EF",
+    surface: "#FBFAF7",
+    surfaceAlt: "#ECEAE3",
+    card: "#FBFAF7",
+    border: "#E2DFD6",
+    text: "#2E3338",
+    textMuted: "#6B7178",
+    textFaint: "#A0A39D",
     primary: brand.coral,
-    onPrimary: "#FFFFFF",
+    onPrimary: "#FBFAF7",
     accent: brand.blue,
     success: brand.green,
     warning: brand.yellow,
-    danger: "#EF476F",
-    tabBar: "#FFFFFF",
-    tabInactive: "#9AA7AE",
-    overlay: "rgba(18,34,43,0.5)",
-    skeleton: "#EEF1F4",
+    danger: "#B0574F",
+    tabBar: "#FBFAF7",
+    tabInactive: "#A0A39D",
+    overlay: "rgba(46,51,56,0.45)",
+    skeleton: "#E7E4DC",
     ...brand,
     macros,
   },
+  // Dark: deep slate, cool and calm.
   dark: {
-    background: "#0E1417",
-    surface: "#151D22",
-    surfaceAlt: "#1B252B",
-    card: "#151D22",
-    border: "#233037",
-    text: "#F2F6F8",
-    textMuted: "#9DB0B9",
-    textFaint: "#63757E",
-    primary: brand.coral,
-    onPrimary: "#12222B",
-    accent: "#3FB4D6",
-    success: brand.green,
-    warning: brand.yellow,
-    danger: "#FF6B8B",
-    tabBar: "#12191E",
-    tabInactive: "#63757E",
+    background: "#1A1E22",
+    surface: "#22272C",
+    surfaceAlt: "#2B3137",
+    card: "#22272C",
+    border: "#333A41",
+    text: "#E9EAE5",
+    textMuted: "#A3A9AD",
+    textFaint: "#6C7379",
+    primary: "#D08C6A",
+    onPrimary: "#1A1E22",
+    accent: "#87A2B4",
+    success: "#8FB09A",
+    warning: "#E0BE7C",
+    danger: "#C77B72",
+    tabBar: "#1E2327",
+    tabInactive: "#6C7379",
     overlay: "rgba(0,0,0,0.6)",
-    skeleton: "#1E282E",
+    skeleton: "#2A3037",
     ...brand,
     macros,
   },

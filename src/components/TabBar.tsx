@@ -175,7 +175,7 @@ function CaptureButton({ onPress }: { onPress: () => void }) {
     >
       <Animated.View style={[animStyle, shadow(3)]}>
         <LinearGradient
-          colors={[brand.coral, "#FF9E5E"]}
+          colors={[brand.coral, "#D99878"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.fab}

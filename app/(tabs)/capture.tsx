@@ -425,7 +425,7 @@ export default function Capture() {
           <Pressable onPress={takePhoto}>
             <View style={styles.shutterOuter}>
               <LinearGradient
-                colors={[brand.coral, "#FF9E5E"]}
+                colors={[brand.coral, "#D99878"]}
                 style={styles.shutterInner}
               />
             </View>

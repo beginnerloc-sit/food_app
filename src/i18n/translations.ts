@@ -83,6 +83,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     "friends.add": "Add",
     "friends.requested": "Requested",
     "friends.friendsTag": "Friends",
+    "friends.remove": "Remove",
+    "friends.removeTitle": "Remove friend?",
+    "friends.removeMsg": "Remove {name} from your friends?",
 
     // profile
     "profile.title": "Profile",
@@ -292,6 +295,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     "friends.add": "Thêm",
     "friends.requested": "Đã mời",
     "friends.friendsTag": "Bạn bè",
+    "friends.remove": "Xoá",
+    "friends.removeTitle": "Xoá bạn?",
+    "friends.removeMsg": "Xoá {name} khỏi danh sách bạn bè?",
 
     // profile
     "profile.title": "Hồ sơ",

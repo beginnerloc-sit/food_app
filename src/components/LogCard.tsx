@@ -102,8 +102,8 @@ export function LogCard({ log, index = 0, isMe, onToggleLike }: Props) {
           </LinearGradient>
         </View>
 
-        {/* footer */}
-        <View style={styles.footer}>
+        {/* macros */}
+        <View style={styles.macrosRow}>
           <MacroChips
             calories={log.calories}
             protein={log.protein_g}
@@ -111,7 +111,10 @@ export function LogCard({ log, index = 0, isMe, onToggleLike }: Props) {
             fat={log.fat_g}
             compact
           />
-          <View style={{ flex: 1 }} />
+        </View>
+
+        {/* actions */}
+        <View style={[styles.footer, { borderTopColor: colors.border }]}>
           <LikeButton liked={log.liked_by_me} count={log.like_count} onToggle={onToggleLike} />
           <PressableScale style={styles.action} onPress={() => router.push(`/log/${log.id}`)}>
             <Ionicons name="chatbubble-outline" size={20} color={colors.textMuted} />
@@ -168,13 +171,19 @@ const styles = StyleSheet.create({
   },
   meal: { color: "#fff", fontSize: 22, fontWeight: "800", letterSpacing: -0.4 },
   kcal: { color: "rgba(255,255,255,0.9)", fontSize: 13, fontWeight: "600", marginTop: 2 },
+  macrosRow: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm,
+  },
   footer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.md,
+    gap: spacing.xl,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
+    borderTopWidth: 1,
   },
-  action: { flexDirection: "row", alignItems: "center", gap: 6, marginLeft: spacing.md },
+  action: { flexDirection: "row", alignItems: "center", gap: 6 },
   count: { fontSize: 14, fontWeight: "600" },
 });

@@ -7,6 +7,7 @@ import {
   TextInput,
   Pressable,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Animated, { FadeIn, FadeInDown, LinearTransition } from "react-native-reanimated";
@@ -90,6 +91,22 @@ export default function Friends() {
     has ? next.delete(memberId) : next.add(memberId);
     setCircle(next);
     await setCircleMember(user.id, memberId, !has);
+  };
+
+  const confirmRemove = (edge: FriendEdge) => {
+    const name = edge.profile.display_name || edge.profile.username;
+    Alert.alert(
+      t("friends.removeTitle"),
+      t("friends.removeMsg", { name }),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("friends.remove"),
+          style: "destructive",
+          onPress: () => removeFriend(edge.friendshipId).then(load),
+        },
+      ]
+    );
   };
 
   const outgoingIds = new Set(outgoing.map((e) => e.profile.id));
@@ -206,10 +223,10 @@ export default function Friends() {
                         onPress={() => toggleCircle(edge.profile.id)}
                       />
                       <RoundBtn
-                        icon="ellipsis-horizontal"
+                        icon="person-remove-outline"
                         bg={colors.surfaceAlt}
                         fg={colors.textMuted}
-                        onPress={() => removeFriend(edge.friendshipId).then(load)}
+                        onPress={() => confirmRemove(edge)}
                       />
                     </View>
                   }

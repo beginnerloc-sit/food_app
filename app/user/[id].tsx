@@ -196,10 +196,11 @@ function TimelineEntry({ item, index }: { item: WallItem; index: number }) {
 
 function CommentBubble({ comment }: { comment: CommentWithAuthor }) {
   const { colors } = useTheme();
+  const { user } = useAuth();
   const isAI = comment.is_ai;
-  const who = isAI
-    ? comment.ai_name || "AI"
-    : comment.author.display_name || comment.author.username;
+  const ownerIsMe = comment.author.id === user?.id;
+  const ownerName = comment.author.display_name || comment.author.username;
+  const who = isAI ? comment.ai_name || "AI" : ownerName;
   return (
     <View style={styles.commentRow}>
       {isAI ? (
@@ -217,7 +218,12 @@ function CommentBubble({ comment }: { comment: CommentWithAuthor }) {
       >
         <Text style={[styles.bubbleName, { color: colors.text }]}>
           {who}
-          {isAI && <Text style={{ color: brand.blue }}> · AI</Text>}
+          {isAI && (
+            <Text style={{ color: brand.blue }}>
+              {" · "}
+              {ownerIsMe ? "your AI" : `${ownerName}'s AI`}
+            </Text>
+          )}
         </Text>
         <Text style={[styles.bubbleBody, { color: colors.text }]}>{comment.body}</Text>
       </View>

@@ -65,6 +65,7 @@ export default function Capture() {
   const [mealType, setMealType] = useState<MealType>("lunch");
   const [caption, setCaption] = useState("");
   const [captionLoading, setCaptionLoading] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
 
   const writeCaption = async () => {
     if (!name.trim()) {
@@ -124,9 +125,13 @@ export default function Capture() {
   };
 
   const takePhoto = async () => {
-    if (!cameraRef.current) return;
-    const photo = await cameraRef.current.takePictureAsync({ quality: 0.6 });
-    if (photo?.uri) runAnalysis(photo.uri);
+    if (!cameraRef.current || !cameraReady) return;
+    try {
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.6 });
+      if (photo?.uri) runAnalysis(photo.uri);
+    } catch (e) {
+      // camera not ready / interrupted
+    }
   };
 
   const pickPhoto = async () => {
@@ -194,6 +199,7 @@ export default function Capture() {
 
   const reset = () => {
     setStage("camera");
+    setCameraReady(false);
     setPhotoUri(null);
     setPrediction(null);
     setName("");
@@ -415,41 +421,51 @@ export default function Capture() {
   }
 
   // ── camera stage ──
+  // NOTE: CameraView must not have children in SDK 57; overlays are siblings.
   return (
     <View style={{ flex: 1, backgroundColor: "#000" }}>
-      <CameraView ref={cameraRef} style={{ flex: 1 }} facing="back">
-        <View style={[styles.camTopBar, { paddingTop: insets.top + 8 }]}>
-          <Pressable onPress={() => router.push("/(tabs)")} style={styles.camClose}>
-            <Ionicons name="close" size={24} color="#fff" />
-          </Pressable>
-          <Text style={styles.camHint}>{t("capture.point")}</Text>
-          <View style={{ width: 40 }} />
-        </View>
-        {/* framing guide */}
-        <View style={styles.frame} pointerEvents="none">
-          <View style={[styles.corner, styles.tl]} />
-          <View style={[styles.corner, styles.tr]} />
-          <View style={[styles.corner, styles.bl]} />
-          <View style={[styles.corner, styles.br]} />
-        </View>
+      <CameraView
+        ref={cameraRef}
+        style={StyleSheet.absoluteFill}
+        facing="back"
+        onCameraReady={() => setCameraReady(true)}
+      />
 
-        <View style={[styles.camControls, { paddingBottom: insets.bottom + 36 }]}>
-          <PressableScale onPress={pickPhoto} style={styles.sideBtn}>
-            <Ionicons name="images" size={26} color="#fff" />
-          </PressableScale>
+      <View style={[styles.camTopBar, { paddingTop: insets.top + 8 }]} pointerEvents="box-none">
+        <Pressable onPress={() => router.push("/(tabs)")} style={styles.camClose}>
+          <Ionicons name="close" size={24} color="#fff" />
+        </Pressable>
+        <Text style={styles.camHint}>{t("capture.point")}</Text>
+        <View style={{ width: 40 }} />
+      </View>
 
-          <Pressable onPress={takePhoto}>
-            <View style={styles.shutterOuter}>
-              <LinearGradient
-                colors={[brand.coral, "#D99878"]}
-                style={styles.shutterInner}
-              />
-            </View>
-          </Pressable>
+      {/* framing guide */}
+      <View style={styles.frame} pointerEvents="none">
+        <View style={[styles.corner, styles.tl]} />
+        <View style={[styles.corner, styles.tr]} />
+        <View style={[styles.corner, styles.bl]} />
+        <View style={[styles.corner, styles.br]} />
+      </View>
 
-          <View style={styles.sideBtn} />
-        </View>
-      </CameraView>
+      <View
+        style={[styles.camControls, { paddingBottom: insets.bottom + 36 }]}
+        pointerEvents="box-none"
+      >
+        <PressableScale onPress={pickPhoto} style={styles.sideBtn}>
+          <Ionicons name="images" size={26} color="#fff" />
+        </PressableScale>
+
+        <Pressable onPress={takePhoto} disabled={!cameraReady}>
+          <View style={[styles.shutterOuter, { opacity: cameraReady ? 1 : 0.5 }]}>
+            <LinearGradient
+              colors={[brand.coral, "#D99878"]}
+              style={styles.shutterInner}
+            />
+          </View>
+        </Pressable>
+
+        <View style={styles.sideBtn} />
+      </View>
     </View>
   );
 }

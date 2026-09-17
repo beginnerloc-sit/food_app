@@ -106,6 +106,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     "profile.dailyGoal": "Daily goal",
     "profile.language": "Language",
     "profile.languageSub": "App language",
+    "profile.theme": "Appearance",
+    "profile.themeSub": "Light, dark or system",
+    "theme.system": "System",
+    "theme.light": "Light",
+    "theme.dark": "Dark",
 
     // notifications
     "notif.title": "Notifications",
@@ -308,6 +313,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     "profile.dailyGoal": "Mục tiêu ngày",
     "profile.language": "Ngôn ngữ",
     "profile.languageSub": "Ngôn ngữ ứng dụng",
+    "profile.theme": "Giao diện",
+    "profile.themeSub": "Sáng, tối hoặc theo hệ thống",
+    "theme.system": "Hệ thống",
+    "theme.light": "Sáng",
+    "theme.dark": "Tối",
 
     // notifications
     "notif.title": "Thông báo",

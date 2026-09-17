@@ -1,5 +1,6 @@
 import { useColorScheme } from "react-native";
 import palette, { ThemeColors } from "./colors";
+import { useThemeMode } from "./mode";
 
 export const spacing = {
   xs: 4,
@@ -69,7 +70,8 @@ export type Theme = {
 
 export function useTheme(): Theme {
   const scheme = useColorScheme();
-  const dark = scheme === "dark";
+  const { mode } = useThemeMode();
+  const dark = mode === "system" ? scheme === "dark" : mode === "dark";
   return {
     colors: dark ? palette.dark : palette.light,
     dark,
@@ -82,3 +84,4 @@ export function useTheme(): Theme {
 
 export { palette };
 export * from "./colors";
+export * from "./mode";

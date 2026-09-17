@@ -20,7 +20,7 @@ import { Avatar } from "@/components/Avatar";
 import { Card } from "@/components/misc";
 import { Button } from "@/components/Button";
 import { PressableScale } from "@/components/PressableScale";
-import { useTheme, spacing, radius, brand } from "@/theme";
+import { useTheme, spacing, radius, brand, useThemeMode } from "@/theme";
 import { useI18n } from "@/i18n";
 
 export default function ProfileScreen() {
@@ -28,6 +28,7 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { user, profile, refreshProfile, signOut } = useAuth();
   const { t, lang, setLang } = useI18n();
+  const { mode, setMode } = useThemeMode();
 
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
@@ -222,6 +223,58 @@ export default function ProfileScreen() {
             </Card>
           </Animated.View>
 
+          {/* theme */}
+          <Animated.View entering={FadeInDown.delay(250)} style={{ marginTop: spacing.lg }}>
+            <Card>
+              <View style={styles.integrationRow}>
+                <View style={[styles.intIcon, { backgroundColor: brand.blue + "22" }]}>
+                  <Ionicons name="contrast" size={22} color={brand.blue} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.intTitle, { color: colors.text }]}>
+                    {t("profile.theme")}
+                  </Text>
+                  <Text style={[styles.intSub, { color: colors.textMuted }]}>
+                    {t("profile.themeSub")}
+                  </Text>
+                </View>
+              </View>
+              <View style={[styles.themeToggle, { backgroundColor: colors.surfaceAlt }]}>
+                {(["system", "light", "dark"] as const).map((m) => (
+                  <PressableScale key={m} onPress={() => setMode(m)} style={{ flex: 1 }}>
+                    <View
+                      style={[
+                        styles.themeBtn,
+                        { backgroundColor: mode === m ? colors.primary : "transparent" },
+                      ]}
+                    >
+                      <Ionicons
+                        name={
+                          m === "system"
+                            ? "phone-portrait-outline"
+                            : m === "light"
+                            ? "sunny-outline"
+                            : "moon-outline"
+                        }
+                        size={16}
+                        color={mode === m ? "#fff" : colors.textMuted}
+                      />
+                      <Text
+                        style={{
+                          color: mode === m ? "#fff" : colors.textMuted,
+                          fontWeight: "700",
+                          fontSize: 13,
+                        }}
+                      >
+                        {t(`theme.${m}`)}
+                      </Text>
+                    </View>
+                  </PressableScale>
+                ))}
+              </View>
+            </Card>
+          </Animated.View>
+
           <View style={{ marginTop: spacing.xl }}>
             <Button
               label={t("profile.signOut")}
@@ -369,6 +422,21 @@ const styles = StyleSheet.create({
   langBtn: {
     paddingHorizontal: 12,
     paddingVertical: 6,
+    borderRadius: radius.pill,
+  },
+  themeToggle: {
+    flexDirection: "row",
+    borderRadius: radius.pill,
+    padding: 3,
+    gap: 2,
+    marginTop: spacing.lg,
+  },
+  themeBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 10,
     borderRadius: radius.pill,
   },
   integrationRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },

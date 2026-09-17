@@ -248,9 +248,9 @@ export default function LogDetail() {
             </Text>
           ) : (
             comments.map((c, i) => {
-              const cn = c.is_ai
-                ? c.ai_name || "AI"
-                : c.author.display_name || c.author.username;
+              const ownerName = c.author.display_name || c.author.username;
+              const cn = c.is_ai ? c.ai_name || "AI" : ownerName;
+              const ownerIsMe = c.author.id === user?.id;
               return (
                 <Animated.View
                   key={c.id}
@@ -277,7 +277,10 @@ export default function LogDetail() {
                     <Text style={[styles.commentName, { color: colors.text }]}>
                       {cn}
                       {c.is_ai && (
-                        <Text style={{ color: brand.blue, fontWeight: "700" }}> · AI</Text>
+                        <Text style={{ color: brand.blue, fontWeight: "700" }}>
+                          {" · "}
+                          {ownerIsMe ? "your AI" : `${ownerName}'s AI`}
+                        </Text>
                       )}
                     </Text>
                     <Text style={[styles.commentBody, { color: colors.text }]}>

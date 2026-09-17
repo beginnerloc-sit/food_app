@@ -257,19 +257,16 @@ export default function Capture() {
               <Ionicons name="close" size={22} color="#fff" />
             </Pressable>
             {prediction && prediction.confidence > 0 && (
-              <Animated.View
-                entering={FadeInDown}
-                style={[styles.aiChip, { top: insets.top + 8 }]}
-              >
+              <View style={[styles.aiChip, { top: insets.top + 8 }]}>
                 <Ionicons name="sparkles" size={13} color="#fff" />
                 <Text style={styles.aiChipText}>
                   {t("capture.confident", { n: Math.round(prediction.confidence * 100) })}
                 </Text>
-              </Animated.View>
+              </View>
             )}
           </View>
 
-          <Animated.View entering={SlideInDown.springify().damping(18)} style={styles.reviewBody}>
+          <View style={[styles.reviewBody, { backgroundColor: colors.background }]}>
             <Text style={[styles.reviewHeading, { color: colors.text }]}>
               {prediction?.confidence ? t("capture.estimate") : t("capture.logMeal")}
             </Text>
@@ -378,7 +375,7 @@ export default function Capture() {
                 },
               ]}
             />
-          </Animated.View>
+          </View>
         </ScrollView>
 
         <View
@@ -698,12 +695,14 @@ const styles = StyleSheet.create({
   },
   aiChipText: { color: "#fff", fontWeight: "700", fontSize: 12 },
   reviewBody: {
-    padding: spacing.lg,
-    marginTop: -20,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
+    marginTop: -24,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
   },
-  reviewHeading: { fontSize: 22, fontWeight: "800", marginBottom: 4 },
+  reviewHeading: { fontSize: 24, fontWeight: "800", marginBottom: 6 },
   items: { fontSize: 13, marginBottom: spacing.lg },
   fieldLabel: {
     fontSize: 13,

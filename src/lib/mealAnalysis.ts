@@ -1,18 +1,29 @@
 import * as FileSystem from "expo-file-system/legacy";
+import * as ImageManipulator from "expo-image-manipulator";
 import { supabase } from "./supabase";
 import type { MealPrediction } from "@/types/meal";
 
 /**
  * Send a local image to the analyze-meal edge function and get a prediction.
- * The image is read as base64 and posted; the OpenAI key stays server-side.
+ * The image is resized/compressed first (a full-res camera photo is too large
+ * for the vision API and causes failures), then read as base64 and posted.
+ * The OpenAI key stays server-side.
  */
 export async function analyzeMeal(localUri: string): Promise<MealPrediction> {
-  const base64 = await FileSystem.readAsStringAsync(localUri, {
-    encoding: FileSystem.EncodingType.Base64,
-  });
+  // Downscale to max 1024px wide + JPEG compress -> small, reliable payload.
+  const resized = await ImageManipulator.manipulateAsync(
+    localUri,
+    [{ resize: { width: 1024 } }],
+    { compress: 0.6, format: ImageManipulator.SaveFormat.JPEG, base64: true }
+  );
+  const base64 =
+    resized.base64 ??
+    (await FileSystem.readAsStringAsync(resized.uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    }));
 
   const { data, error } = await supabase.functions.invoke("analyze-meal", {
-    body: { imageBase64: base64, mimeType: guessMime(localUri) },
+    body: { imageBase64: base64, mimeType: "image/jpeg" },
   });
 
   if (error) throw new Error(error.message ?? "Analysis failed");

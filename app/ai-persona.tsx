@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
   },
   presetGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
-  presetWrap: { width: "31%", flexGrow: 1 },
+  presetWrap: { width: "31.5%" },
   preset: {
     alignItems: "center",
     gap: 5,

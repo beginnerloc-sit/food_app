@@ -184,7 +184,7 @@ export default function LogDetail() {
           )}
         </View>
 
-        <Animated.View entering={FadeInDown} style={styles.body}>
+        <Animated.View entering={FadeInDown} style={[styles.body, { backgroundColor: colors.background }]}>
           <View style={styles.authorRow}>
             <Avatar uri={log.author.avatar_url} name={authorName} size={44} ring />
             <View style={{ flex: 1 }}>
@@ -367,11 +367,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   body: {
-    padding: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.lg,
     marginTop: -24,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    backgroundColor: "transparent",
   },
   authorRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
   author: { fontSize: 16, fontWeight: "700" },

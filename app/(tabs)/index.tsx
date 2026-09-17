@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { getFeed, getUnreadCount, toggleLike } from "@/lib/api";
 import { LogCard } from "@/components/LogCard";
-import { EmptyState } from "@/components/misc";
+import { EmptyState, ScreenHeader } from "@/components/misc";
 import { PressableScale } from "@/components/PressableScale";
 import { useTheme, spacing, brand } from "@/theme";
 import { useI18n } from "@/i18n";
@@ -88,26 +88,26 @@ export default function Feed() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       {/* header */}
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <View style={styles.logoRow}>
-          <View style={[styles.logoBadge, { backgroundColor: brand.coral }]}>
-            <Ionicons name="restaurant" size={18} color="#fff" />
-          </View>
-          <Text style={[styles.logo, { color: colors.text }]}>PlatePal</Text>
-        </View>
-        <PressableScale onPress={() => router.push("/(tabs)/notifications")}>
-          <View style={[styles.bell, { backgroundColor: colors.surfaceAlt }]}>
-            <Ionicons name="notifications-outline" size={22} color={colors.text} />
-            {unread > 0 && (
-              <Animated.View
-                entering={FadeIn}
-                style={[styles.badge, { backgroundColor: colors.danger }]}
-              >
-                <Text style={styles.badgeText}>{unread > 9 ? "9+" : unread}</Text>
-              </Animated.View>
-            )}
-          </View>
-        </PressableScale>
+      <View style={{ paddingTop: insets.top + 12 }}>
+        <ScreenHeader
+          title="PlatePal"
+          subtitle={t("tab.feed")}
+          right={
+            <PressableScale onPress={() => router.push("/(tabs)/notifications")}>
+              <View style={[styles.bell, { backgroundColor: colors.surfaceAlt }]}>
+                <Ionicons name="notifications-outline" size={22} color={colors.text} />
+                {unread > 0 && (
+                  <Animated.View
+                    entering={FadeIn}
+                    style={[styles.badge, { backgroundColor: colors.danger }]}
+                  >
+                    <Text style={styles.badgeText}>{unread > 9 ? "9+" : unread}</Text>
+                  </Animated.View>
+                )}
+              </View>
+            </PressableScale>
+          }
+        />
       </View>
 
       <FlatList

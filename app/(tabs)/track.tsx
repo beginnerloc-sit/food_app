@@ -143,31 +143,31 @@ export default function Track() {
           </PressableScale>
         </View>
 
-        {/* ring + macros */}
-        <Animated.View entering={FadeInDown} style={styles.ringSection}>
-          <CalorieRing consumed={totals.calories} goal={goal} />
-          <View style={styles.ringActions}>
-            {profile && profile.streak_count > 0 && (
-              <View style={[styles.streak, { backgroundColor: brand.yellow + "22" }]}>
-                <Ionicons name="flame" size={16} color={brand.coral} />
-                <Text style={[styles.streakText, { color: colors.text }]}>
-                  {t("track.streak", { n: profile.streak_count })}
-                </Text>
-              </View>
-            )}
-            <PressableScale onPress={() => router.push("/goals")}>
-              <View style={[styles.streak, { backgroundColor: colors.surfaceAlt }]}>
-                <Ionicons name="options-outline" size={16} color={colors.textMuted} />
-                <Text style={[styles.streakText, { color: colors.text }]}>
-                  {t("track.setGoal")}
-                </Text>
-              </View>
-            </PressableScale>
-          </View>
-        </Animated.View>
-
-        <Animated.View entering={FadeInDown.delay(100)} style={styles.card}>
+        {/* hero: ring + macros in one card */}
+        <Animated.View entering={FadeInDown} style={styles.card}>
           <Card>
+            <View style={styles.ringSection}>
+              <CalorieRing consumed={totals.calories} goal={goal} />
+              <View style={styles.ringActions}>
+                {profile && profile.streak_count > 0 && (
+                  <View style={[styles.streak, { backgroundColor: brand.yellow + "22" }]}>
+                    <Ionicons name="flame" size={16} color={brand.coral} />
+                    <Text style={[styles.streakText, { color: colors.text }]}>
+                      {t("track.streak", { n: profile.streak_count })}
+                    </Text>
+                  </View>
+                )}
+                <PressableScale onPress={() => router.push("/goals")}>
+                  <View style={[styles.streak, { backgroundColor: colors.surfaceAlt }]}>
+                    <Ionicons name="options-outline" size={16} color={colors.textMuted} />
+                    <Text style={[styles.streakText, { color: colors.text }]}>
+                      {t("track.setGoal")}
+                    </Text>
+                  </View>
+                </PressableScale>
+              </View>
+            </View>
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
             <MacroBars
               protein={{ value: totals.protein_g, goal: profile?.protein_goal_g ?? 140 }}
               carbs={{ value: totals.carbs_g, goal: profile?.carbs_goal_g ?? 220 }}
@@ -274,7 +274,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   dateText: { fontSize: 18, fontWeight: "800" },
-  ringSection: { alignItems: "center", marginVertical: spacing.lg },
+  ringSection: { alignItems: "center", paddingBottom: spacing.md },
+  divider: { height: 1, marginVertical: spacing.lg, marginHorizontal: -spacing.xl },
   ringActions: {
     flexDirection: "row",
     gap: spacing.sm,

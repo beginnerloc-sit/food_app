@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { formatDistanceToNow } from "date-fns";
@@ -9,7 +10,7 @@ import { Avatar } from "./Avatar";
 import { MacroChips } from "./MacroChips";
 import { LikeButton } from "./LikeButton";
 import { PressableScale } from "./PressableScale";
-import { useTheme, radius, spacing, shadow, brand } from "@/theme";
+import { useTheme, radius, spacing, shadow, absoluteFill } from "@/theme";
 import { useI18n } from "@/i18n";
 import type { FoodLogWithAuthor } from "@/types/database";
 
@@ -27,109 +28,87 @@ const MEAL_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
   snack: "nutrition-outline",
 };
 
-const CONFIDENCE_COLOR = (c: number | null) =>
-  c == null ? brand.blue : c >= 0.75 ? brand.green : c >= 0.5 ? brand.yellow : brand.coral;
-
-/** A single meal post in the social feed. */
+/** Editorial, photo-forward meal card. */
 export function LogCard({ log, index = 0, isMe, onToggleLike }: Props) {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const { t } = useI18n();
   const name = log.author.display_name || log.author.username;
+  const hasPhoto = !!log.photo_url;
 
   return (
     <Animated.View
-      entering={FadeInDown.delay(Math.min(index, 8) * 60).springify().damping(16)}
+      entering={FadeInDown.delay(Math.min(index, 8) * 70)
+        .springify()
+        .damping(16)}
     >
       <PressableScale
         onPress={() => router.push(`/log/${log.id}`)}
         style={[
           styles.card,
-          { backgroundColor: colors.card, borderColor: colors.border },
-          shadow(1),
+          { backgroundColor: colors.card, borderColor: colors.border, borderWidth: dark ? 1 : 0 },
+          !dark && shadow(2),
         ]}
       >
-        {/* header */}
-        <View style={styles.header}>
-          <Avatar uri={log.author.avatar_url} name={name} size={40} ring />
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.name, { color: colors.text }]}>
-              {isMe ? t("common.you") : name}
-            </Text>
-            <View style={styles.metaRow}>
-              <Ionicons
-                name={MEAL_ICON[log.meal_type]}
-                size={12}
-                color={colors.textFaint}
-              />
-              <Text style={[styles.meta, { color: colors.textFaint }]}>
+        {/* media */}
+        <View style={styles.media}>
+          {hasPhoto ? (
+            <Image source={{ uri: log.photo_url! }} style={styles.photo} contentFit="cover" transition={250} />
+          ) : (
+            <View style={[styles.photo, styles.noPhoto, { backgroundColor: colors.surfaceAlt }]}>
+              <Ionicons name={MEAL_ICON[log.meal_type]} size={44} color={colors.textFaint} />
+            </View>
+          )}
+
+          {/* top scrim: author */}
+          <LinearGradient
+            colors={["rgba(0,0,0,0.55)", "rgba(0,0,0,0)"]}
+            style={styles.topScrim}
+          >
+            <Avatar uri={log.author.avatar_url} name={name} size={34} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.author} numberOfLines={1}>
+                {isMe ? t("common.you") : name}
+              </Text>
+              <Text style={styles.time}>
                 {t(`meal.${log.meal_type}`)} ·{" "}
                 {formatDistanceToNow(new Date(log.logged_at), { addSuffix: true })}
               </Text>
             </View>
-          </View>
-          {log.ai_confidence != null && (
-            <View
-              style={[
-                styles.aiBadge,
-                { backgroundColor: CONFIDENCE_COLOR(log.ai_confidence) + "22" },
-              ]}
-            >
-              <Ionicons
-                name="sparkles"
-                size={11}
-                color={CONFIDENCE_COLOR(log.ai_confidence)}
-              />
-              <Text
-                style={[
-                  styles.aiText,
-                  { color: CONFIDENCE_COLOR(log.ai_confidence) },
-                ]}
-              >
-                AI
-              </Text>
-            </View>
-          )}
-        </View>
+            {log.ai_confidence != null && (
+              <View style={styles.aiBadge}>
+                <Ionicons name="sparkles" size={11} color="#fff" />
+                <Text style={styles.aiText}>AI</Text>
+              </View>
+            )}
+          </LinearGradient>
 
-        {/* photo */}
-        {log.photo_url ? (
-          <Image
-            source={{ uri: log.photo_url }}
-            style={styles.photo}
-            contentFit="cover"
-            transition={250}
-          />
-        ) : null}
-
-        {/* body */}
-        <View style={styles.body}>
-          <Text style={[styles.meal, { color: colors.text }]}>{log.meal_name}</Text>
-          {log.serving_size ? (
-            <Text style={[styles.serving, { color: colors.textMuted }]}>
-              {log.serving_size}
-            </Text>
-          ) : null}
-          <View style={{ marginTop: 10 }}>
-            <MacroChips
-              calories={log.calories}
-              protein={log.protein_g}
-              carbs={log.carbs_g}
-              fat={log.fat_g}
-            />
-          </View>
-        </View>
-
-        {/* footer actions */}
-        <View style={[styles.footer, { borderTopColor: colors.border }]}>
-          <LikeButton
-            liked={log.liked_by_me}
-            count={log.like_count}
-            onToggle={onToggleLike}
-          />
-          <PressableScale
-            style={styles.action}
-            onPress={() => router.push(`/log/${log.id}`)}
+          {/* bottom scrim: meal name + calories */}
+          <LinearGradient
+            colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.65)"]}
+            style={styles.bottomScrim}
           >
+            <Text style={styles.meal} numberOfLines={1}>
+              {log.meal_name}
+            </Text>
+            <Text style={styles.kcal}>
+              {log.calories} {t("common.cal")}
+              {log.serving_size ? `  ·  ${log.serving_size}` : ""}
+            </Text>
+          </LinearGradient>
+        </View>
+
+        {/* footer */}
+        <View style={styles.footer}>
+          <MacroChips
+            calories={log.calories}
+            protein={log.protein_g}
+            carbs={log.carbs_g}
+            fat={log.fat_g}
+            compact
+          />
+          <View style={{ flex: 1 }} />
+          <LikeButton liked={log.liked_by_me} count={log.like_count} onToggle={onToggleLike} />
+          <PressableScale style={styles.action} onPress={() => router.push(`/log/${log.id}`)}>
             <Ionicons name="chatbubble-outline" size={20} color={colors.textMuted} />
             {log.comment_count > 0 && (
               <Text style={[styles.count, { color: colors.textMuted }]}>
@@ -137,8 +116,6 @@ export function LogCard({ log, index = 0, isMe, onToggleLike }: Props) {
               </Text>
             )}
           </PressableScale>
-          <View style={{ flex: 1 }} />
-          <Ionicons name="chevron-forward" size={18} color={colors.textFaint} />
         </View>
       </PressableScale>
     </Animated.View>
@@ -148,41 +125,50 @@ export function LogCard({ log, index = 0, isMe, onToggleLike }: Props) {
 const styles = StyleSheet.create({
   card: {
     borderRadius: radius.lg,
-    borderWidth: 1,
     marginHorizontal: spacing.lg,
     marginBottom: spacing.lg,
     overflow: "hidden",
   },
-  header: {
+  media: { width: "100%", aspectRatio: 4 / 3, backgroundColor: "#0002" },
+  photo: { ...absoluteFill, width: "100%", height: "100%" },
+  noPhoto: { alignItems: "center", justifyContent: "center" },
+  topScrim: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.md,
-    padding: spacing.md,
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xl,
   },
-  name: { fontSize: 15, fontWeight: "700" },
-  metaRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2 },
-  meta: { fontSize: 12, textTransform: "capitalize" },
+  author: { color: "#fff", fontSize: 14, fontWeight: "700" },
+  time: { color: "rgba(255,255,255,0.85)", fontSize: 12, marginTop: 1, textTransform: "capitalize" },
   aiBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 3,
+    backgroundColor: "rgba(0,0,0,0.35)",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: radius.pill,
   },
-  aiText: { fontSize: 11, fontWeight: "800" },
-  photo: { width: "100%", aspectRatio: 4 / 3, backgroundColor: "#0002" },
-  body: { padding: spacing.md, paddingTop: spacing.md },
-  meal: { fontSize: 18, fontWeight: "700" },
-  serving: { fontSize: 13, marginTop: 2 },
+  aiText: { color: "#fff", fontSize: 11, fontWeight: "800" },
+  bottomScrim: {
+    ...absoluteFill,
+    top: undefined,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.md,
+    justifyContent: "flex-end",
+  },
+  meal: { color: "#fff", fontSize: 22, fontWeight: "800", letterSpacing: -0.4 },
+  kcal: { color: "rgba(255,255,255,0.9)", fontSize: 13, fontWeight: "600", marginTop: 2 },
   footer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.lg,
+    gap: spacing.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
-    borderTopWidth: 1,
   },
-  action: { flexDirection: "row", alignItems: "center", gap: 6 },
+  action: { flexDirection: "row", alignItems: "center", gap: 6, marginLeft: spacing.md },
   count: { fontSize: 14, fontWeight: "600" },
 });

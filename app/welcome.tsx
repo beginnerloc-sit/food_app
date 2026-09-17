@@ -15,6 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { Button } from "@/components/Button";
 import { Floating } from "@/components/Floating";
+import { Plate3D } from "@/components/Plate3D";
 import { useTheme, spacing, brand, shadow } from "@/theme";
 import { useI18n } from "@/i18n";
 
@@ -71,16 +72,20 @@ export default function Welcome() {
       >
         {SLIDES.map((s) => (
           <View key={s.k} style={[styles.slide, { width }]}>
-            <Floating amplitude={12} delay={200}>
-              <LinearGradient
-                colors={[s.color, s.color + "AA"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={[styles.art, shadow(4)]}
-              >
-                <Ionicons name={s.icon as any} size={92} color="#fff" />
-              </LinearGradient>
-            </Floating>
+            {s.k === "1" ? (
+              <Plate3D size={240} style={{ marginBottom: spacing.lg }} />
+            ) : (
+              <Floating amplitude={12} delay={200}>
+                <LinearGradient
+                  colors={[s.color, s.color + "AA"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={[styles.art, shadow(4)]}
+                >
+                  <Ionicons name={s.icon as any} size={92} color="#fff" />
+                </LinearGradient>
+              </Floating>
+            )}
             <Text style={[styles.title, { color: colors.text }]}>
               {t(`welcome.${s.k}.title`)}
             </Text>

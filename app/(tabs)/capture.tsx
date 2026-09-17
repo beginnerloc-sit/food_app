@@ -33,6 +33,7 @@ import { createLog, addAIComment } from "@/lib/api";
 import { generateCaption, generateComment, personaFromProfile } from "@/lib/persona";
 import { Button } from "@/components/Button";
 import { PressableScale } from "@/components/PressableScale";
+import { LottieBox } from "@/components/LottieBox";
 import { useTheme, brand, radius, spacing, macros, shadow, absoluteFill } from "@/theme";
 import { useI18n } from "@/i18n";
 import type { MealPrediction } from "@/types/meal";
@@ -395,7 +396,10 @@ export default function Capture() {
           <Image source={{ uri: photoUri }} style={StyleSheet.absoluteFill} blurRadius={2} />
         )}
         <View style={styles.analyzeOverlay} />
-        <ScannerPulse />
+        <LottieBox
+          source={require("../../assets/lottie/coffee.json")}
+          size={180}
+        />
         <Text style={styles.analyzeText}>{t("capture.analyzing")}</Text>
         <Text style={styles.analyzeSub}>{t("capture.estimating")}</Text>
       </View>

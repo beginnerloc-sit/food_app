@@ -9,7 +9,7 @@ import {
   Alert,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import Animated, { FadeInDown, Layout } from "react-native-reanimated";
+import Animated, { FadeInDown, LinearTransition } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
@@ -97,7 +97,7 @@ export default function Goals() {
           {GOALS.map((g) => (
             <PressableScale key={g} onPress={() => setGoalType(g)} style={{ flex: 1 }}>
               <Animated.View
-                layout={Layout.springify()}
+                layout={LinearTransition.springify()}
                 style={[
                   styles.goalCard,
                   {

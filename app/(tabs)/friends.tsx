@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import Animated, { FadeIn, FadeInDown, Layout } from "react-native-reanimated";
+import Animated, { FadeIn, FadeInDown, LinearTransition } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
@@ -149,7 +149,7 @@ export default function Friends() {
           <View style={styles.section}>
             <SectionTitle title={t("friends.requests", { n: incoming.length })} />
             {incoming.map((edge) => (
-              <Animated.View key={edge.friendshipId} entering={FadeInDown} layout={Layout}>
+              <Animated.View key={edge.friendshipId} entering={FadeInDown} layout={LinearTransition}>
                 <UserRow
                   profile={edge.profile}
                   trailing={
@@ -195,7 +195,7 @@ export default function Friends() {
             />
           ) : (
             accepted.map((edge) => (
-              <Animated.View key={edge.friendshipId} entering={FadeInDown} layout={Layout}>
+              <Animated.View key={edge.friendshipId} entering={FadeInDown} layout={LinearTransition}>
                 <UserRow
                   profile={edge.profile}
                   trailing={
@@ -250,7 +250,7 @@ function BellToggle({ active, onPress }: { active: boolean; onPress: () => void 
   return (
     <PressableScale onPress={onPress}>
       <Animated.View
-        layout={Layout.springify()}
+        layout={LinearTransition.springify()}
         style={[
           styles.bellToggle,
           {

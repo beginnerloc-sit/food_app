@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import Animated, { FadeInDown, Layout } from "react-native-reanimated";
+import Animated, { FadeInDown, LinearTransition } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -183,7 +183,7 @@ export default function Track() {
               <Animated.View
                 key={log.id}
                 entering={FadeInDown.delay(i * 50)}
-                layout={Layout.springify()}
+                layout={LinearTransition.springify()}
               >
                 <LogRow log={log} onDelete={() => confirmDelete(log)} />
               </Animated.View>

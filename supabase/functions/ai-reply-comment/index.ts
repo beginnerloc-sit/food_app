@@ -78,6 +78,9 @@ serve(async (req) => {
       .filter(Boolean)
       .join(", ");
 
+    let replies = 0;
+    let firstName = "";
+    let firstEmoji = "";
     for (const p of profiles) {
       try {
         const reply = await generate(p, who, c.body, mealDesc);
@@ -90,10 +93,30 @@ serve(async (req) => {
             ai_name: p.ai_name,
             ai_emoji: p.ai_emoji,
           });
+          replies++;
+          if (!firstName) {
+            firstName = p.ai_name;
+            firstEmoji = p.ai_emoji ?? "🤖";
+          }
         }
       } catch (_) {
         /* skip this persona on error */
       }
+    }
+
+    // Notify the human commenter that an AI replied (fires the push webhook).
+    if (replies > 0) {
+      const body =
+        replies === 1
+          ? `${firstEmoji} ${firstName} replied to your comment`
+          : `${firstEmoji} ${firstName} and ${replies - 1} more replied to your comment`;
+      await admin.from("notifications").insert({
+        user_id: c.user_id,
+        type: "comment",
+        actor_id: log.user_id,
+        log_id: log.id,
+        body,
+      });
     }
     return ok("replied");
   } catch (err) {

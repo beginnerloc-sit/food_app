@@ -36,7 +36,14 @@ export default function Onboarding() {
       Alert.alert(t("onb.username"), t("onb.pickUsername"));
       return;
     }
-    if (!user) return;
+    if (!user) {
+      Alert.alert(
+        "Not signed in",
+        "Your session expired. Please sign in again.",
+        [{ text: "OK", onPress: () => router.replace("/(auth)/sign-in") }]
+      );
+      return;
+    }
     setLoading(true);
     try {
       const { error } = await supabase.from("profiles").upsert({

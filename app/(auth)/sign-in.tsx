@@ -36,10 +36,19 @@ export default function SignIn() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        // Onboarding will pick a username; redirect handled by index gate.
-        router.replace("/(auth)/onboarding");
+        // If email confirmation is on, there's no session yet.
+        if (!data.session) {
+          Alert.alert(
+            "Confirm your email",
+            "We sent a confirmation link. Confirm it, then sign in.",
+            [{ text: "OK", onPress: () => setMode("signin") }]
+          );
+          return;
+        }
+        // Onboarding picks a username; the index gate routes there.
+        router.replace("/");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,

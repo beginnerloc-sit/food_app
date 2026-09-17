@@ -88,6 +88,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut: async () => {
       await supabase.auth.signOut();
       setProfile(null);
+      setSession(null);
+      setProfileLoaded(true);
+      router.replace("/(auth)/sign-in");
     },
   };
 

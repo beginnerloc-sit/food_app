@@ -3,7 +3,12 @@ import { View, Text, StyleSheet } from "react-native";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, {
+  FadeInDown,
+  FadeInLeft,
+  FadeInRight,
+  FadeInUp,
+} from "react-native-reanimated";
 import { formatDistanceToNow } from "date-fns";
 import { router } from "expo-router";
 import { Avatar } from "./Avatar";
@@ -28,18 +33,23 @@ const MEAL_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
   snack: "nutrition-outline",
 };
 
+// Cards fly in from different directions for a lively feed.
+const ENTRANCES = [FadeInLeft, FadeInRight, FadeInUp, FadeInDown];
+
 /** Editorial, photo-forward meal card. */
 export function LogCard({ log, index = 0, isMe, onToggleLike }: Props) {
   const { colors, dark } = useTheme();
   const { t } = useI18n();
   const name = log.author.display_name || log.author.username;
   const hasPhoto = !!log.photo_url;
+  const Entrance = ENTRANCES[index % ENTRANCES.length];
 
   return (
     <Animated.View
-      entering={FadeInDown.delay(Math.min(index, 8) * 70)
+      entering={Entrance.delay(Math.min(index, 10) * 90)
         .springify()
-        .damping(16)}
+        .damping(14)
+        .stiffness(90)}
     >
       <PressableScale
         onPress={() => router.push(`/log/${log.id}`)}

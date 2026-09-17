@@ -8,7 +8,7 @@ import { WELCOME_KEY } from "./welcome";
 
 /** Entry gate: welcome carousel, then auth, onboarding, or the app. */
 export default function Index() {
-  const { session, profile, loading } = useAuth();
+  const { session, profile, loading, profileLoaded } = useAuth();
   const { colors } = useTheme();
   const [welcomeSeen, setWelcomeSeen] = useState<boolean | null>(null);
 
@@ -18,7 +18,12 @@ export default function Index() {
       .catch(() => setWelcomeSeen(false));
   }, []);
 
-  if (loading || welcomeSeen === null) {
+  // Wait for the profile fetch to finish before deciding onboarding vs app,
+  // otherwise a signed-in user briefly looks profile-less and gets bounced
+  // to onboarding on every launch.
+  const waitingForProfile = !!session && !profileLoaded;
+
+  if (loading || welcomeSeen === null || waitingForProfile) {
     return (
       <View
         style={{

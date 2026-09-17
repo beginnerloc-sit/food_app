@@ -92,8 +92,26 @@ export default function Track() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* top bar with a fixed, non-overlapping Ask Chef button */}
+      <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
+        <Text style={[styles.screenTitle, { color: colors.text }]}>
+          {t("tab.track")}
+        </Text>
+        <PressableScale onPress={() => router.push("/coach")}>
+          <LinearGradient
+            colors={[brand.green, brand.blue]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.chefChip}
+          >
+            <Text style={{ fontSize: 16 }}>👨‍🍳</Text>
+            <Text style={styles.chefChipText}>{t("track.askChef")}</Text>
+          </LinearGradient>
+        </PressableScale>
+      </View>
+
       <ScrollView
-        contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 120 }}
+        contentContainerStyle={{ paddingTop: spacing.sm, paddingBottom: 120 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -192,20 +210,6 @@ export default function Track() {
         </View>
       </ScrollView>
 
-      {/* floating Ask Chef button */}
-      <View style={[styles.coachFab, { bottom: insets.bottom + 90 }, shadow(3)]}>
-        <PressableScale onPress={() => router.push("/coach")}>
-          <LinearGradient
-            colors={[brand.green, brand.blue]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.coachFabInner}
-          >
-            <Text style={{ fontSize: 20 }}>👨‍🍳</Text>
-            <Text style={styles.coachFabText}>{t("track.askChef")}</Text>
-          </LinearGradient>
-        </PressableScale>
-      </View>
     </View>
   );
 }
@@ -281,16 +285,23 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
   },
   streakText: { fontSize: 14, fontWeight: "700" },
-  coachFab: { position: "absolute", right: spacing.lg },
-  coachFabInner: {
+  topBar: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.sm,
+  },
+  screenTitle: { fontSize: 26, fontWeight: "800", letterSpacing: -0.5 },
+  chefChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
     borderRadius: 999,
   },
-  coachFabText: { color: "#fff", fontWeight: "800", fontSize: 15 },
+  chefChipText: { color: "#fff", fontWeight: "800", fontSize: 14 },
   card: { paddingHorizontal: spacing.lg, marginTop: spacing.md },
   logRow: {
     flexDirection: "row",

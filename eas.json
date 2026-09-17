@@ -24,7 +24,9 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "loctientran235@gmail.com"
+        "appleId": "loctientran235@gmail.com",
+        "ascAppId": "6812873288",
+        "appleTeamId": "BS58AZ2UFT"
       }
     }
   }

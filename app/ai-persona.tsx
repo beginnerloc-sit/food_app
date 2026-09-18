@@ -8,6 +8,8 @@ import {
   Switch,
   Alert,
   Pressable,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Animated, { FadeInDown, FadeIn } from "react-native-reanimated";
@@ -117,7 +119,16 @@ export default function AiPersona() {
         </View>
       </LinearGradient>
 
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: 160 }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={insets.top + 8}
+      >
+      <ScrollView
+        contentContainerStyle={{ padding: spacing.lg, paddingBottom: 340 }}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+      >
         {/* enable */}
         <Card>
           <ToggleRow
@@ -284,6 +295,7 @@ export default function AiPersona() {
           </Animated.View>
         )}
       </ScrollView>
+      </KeyboardAvoidingView>
 
       <View
         style={[
